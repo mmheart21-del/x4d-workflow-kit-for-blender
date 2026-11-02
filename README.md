@@ -70,7 +70,7 @@ Blender 5.2.3：108 个非文件选择创建菜单的执行检查；SVG/图片/W
 
 ![MoGraph 示例](docs/images/mograph.png)
 
-![生成器面板](docs/images/generators.png)
+![基础体面板](docs/images/generators.png)
 
 ## 图标与许可
 

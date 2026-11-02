@@ -24,6 +24,8 @@ E / R / T: move / rotate / scale. H: frame all. S: frame selected. C: make edita
 
 ![MoGraph](docs/images/mograph.png)
 
+![Primitives](docs/images/generators.png)
+
 Minimum compatibility target is Blender 4.5. **Actual runtime tested: Windows, Blender 5.2.3 LTS.** Other versions and future releases are not claimed as tested. UI screenshots are from real Blender windows, not mockups.
 
 Known differences include raster planar spline Booleans, mesh-boundary fog smoothing rather than voxel-density convolution, mesh-attribute vector smoothing rather than VDB vector grids, a 32-seed Voronoi limit, PCM WAV RMS rather than full spectral audio analysis, and approximate HPB rotation mapping. See the Chinese README for the complete feature matrix and limitations. No .x4d compatibility, Xpresso, renderer or simulation-system replication is provided.
