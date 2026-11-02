@@ -8,6 +8,25 @@
 
 Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试版本为本机 Blender 5.2.3 LTS。运行时不需要 X4D、MCP 或网络。未来版本不视为已验证。
 
+## 社区交流与参与开发
+
+**GitHub 是 X4D 讨论、反馈和开发协作的统一入口，无需加入其他聊天平台。** 请先阅读[社区指南](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/2)。
+
+| 你想做什么 | 入口 |
+| --- | --- |
+| 安装、使用问题或不确定是否为 Bug | [Q&A 问答](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/q-a) |
+| 日常交流、分享使用体验 | [General 讨论](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/general) |
+| 功能设想与工作流建议 | [Ideas 建议](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/ideas) |
+| 分享作品、测试与实验 | [Show and tell](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/show-and-tell) |
+| 提交可复现的 Bug 或明确的功能需求 | [Issue 反馈表单](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues/new/choose) |
+| 参与修复、开发、性能优化、测试和文档 | [开发协作主题](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/1) |
+| 提交代码修改并申请合并 | [Pull Requests](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/pulls) |
+| 查看项目公告和进展 | [Announcements](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/announcements) |
+
+反馈 Bug 时请填写插件版本、Blender 版本、操作系统、复现步骤、预期与实际结果，并附截图或报错。暂时无法判断的问题，可以先在 Q&A 提问。
+
+开发流程：讨论方案 → 新建或关联 Issue → 协调认领任务 → 提交附测试结果的 PR → 维护者审核并合并。所有人均可参与讨论和贡献，但不会自动获得仓库写入权限。详细要求见 [CONTRIBUTING](CONTRIBUTING.md)。
+
 ## 安装与恢复
 
 在 Blender 的偏好设置 → 获取扩展 → 右上菜单 → 从磁盘安装，选择 `dist/x4d_workflow-0.6.1.zip`。更新前停用旧版，再安装新版并启用。请确认扩展版本显示 0.6.1。

@@ -1,0 +1,57 @@
+{
+  "name": "Feature request",
+  "description": "Propose a specific improvement with a clear use case.",
+  "title": "[Feature]: ",
+  "labels": [
+    "enhancement"
+  ],
+  "body": [
+    {
+      "type": "markdown",
+      "attributes": {
+        "value": "For early brainstorming, start in [Ideas](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/ideas). Use this form when you can describe a concrete change."
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "problem",
+      "attributes": {
+        "label": "What problem would this solve?"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "proposal",
+      "attributes": {
+        "label": "Proposed behavior"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "example",
+      "attributes": {
+        "label": "Example workflow or acceptance criteria",
+        "description": "Describe how someone could verify that the feature works."
+      },
+      "validations": {
+        "required": false
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "alternatives",
+      "attributes": {
+        "label": "Alternatives or workarounds"
+      },
+      "validations": {
+        "required": false
+      }
+    }
+  ]
+}

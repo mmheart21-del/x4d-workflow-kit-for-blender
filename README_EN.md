@@ -8,6 +8,25 @@ This extension is under development. Many features remain unfinished due to time
 
 A Blender extension providing a dedicated workspace, compact creation palettes, modeling generators, deformers, MoGraph-style tools, fields and familiar navigation shortcuts. This independent project is under active development.
 
+## Community & contributing
+
+**GitHub is the primary home for X4D discussion, bug reports and development. No separate chat server is required.** Start with the [community guide](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/2).
+
+| I want to… | Go to |
+| --- | --- |
+| Ask about installation or usage | [Q&A](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/q-a) |
+| Chat about workflows or share experiences | [General](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/general) |
+| Suggest or explore an idea | [Ideas](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/ideas) |
+| Share a creation or experiment | [Show and tell](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/show-and-tell) |
+| Report a reproducible bug or request a specific feature | [Issue forms](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues/new/choose) |
+| Help fix, develop, optimize, test or document X4D | [Development collaboration](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/1) |
+| Submit a code change for review | [Pull Requests](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/pulls) |
+| Follow project updates | [Announcements](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/categories/announcements) |
+
+Bug reports should include X4D/Blender versions, OS, steps to reproduce, expected/actual results and screenshots or error output. If unsure whether something is a bug, ask in Q&A first.
+
+To contribute: discuss the approach → open or link an Issue → coordinate the task → submit a PR with test results → maintainer review and merge. Anyone can participate; participation does not automatically grant repository write access. See [CONTRIBUTING](CONTRIBUTING.md).
+
 ![Workspace](docs/images/workspace.png)
 
 ## Install
