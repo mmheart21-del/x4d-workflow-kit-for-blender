@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.blend1
+*.blend2
+artifacts/*
+!artifacts/.gitkeep
+up/
+dist/
+release/github/
+*.local*

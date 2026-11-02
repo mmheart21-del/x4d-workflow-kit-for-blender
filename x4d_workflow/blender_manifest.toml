@@ -1,0 +1,14 @@
+schema_version = "1.0.0"
+id = "x4d_workflow"
+version = "0.6.1"
+name = "X4D Workflow Kit"
+tagline = "Procedural workspace, modeling and procedural motion tools"
+maintainer = "X4D Workflow contributors"
+type = "add-on"
+blender_version_min = "4.5.0"
+license = ["SPDX:GPL-3.0-or-later"]
+tags = ["3D View", "Modeling", "Animation"]
+
+
+
+
