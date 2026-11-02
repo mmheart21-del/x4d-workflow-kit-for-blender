@@ -16,6 +16,7 @@ def capture_initial():
         assert bpy.context.workspace.name=='X4D'
         assert len(bpy.context.scene.objects)==0
         bpy.context.scene.name='Untitled'
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP',iterations=2)
         bpy.ops.screen.screenshot(filepath=os.path.join(out,'workspace.png'))
         bpy.ops.cw.primitive(kind='CUBE');bpy.context.object.cw_size=(1,1,1);bpy.context.object.name='Cube'
         bpy.ops.cw.create(kind='CLONER');cloner=bpy.context.object;cloner.name='Cloner';cloner.cw.count=(8,8,1);cloner.cw.spacing=(1.4,1.4,1.4)
@@ -40,6 +41,13 @@ def mograph():
 
 def capture_mograph():
     bpy.ops.screen.screenshot(filepath=os.path.join(out,'mograph.png'))
+    for obj in list(bpy.context.scene.objects):bpy.data.objects.remove(obj,do_unlink=True)
+    kit.selection._last.clear();kit.selection.focus()
+    bpy.app.timers.register(capture_empty,first_interval=1)
+    return None
+
+def capture_empty():
+    bpy.ops.screen.screenshot(filepath=os.path.join(out,'workspace.png'))
     print('X4D_ENGLISH_SCREENSHOTS_OK');bpy.ops.wm.quit_blender()
     return None
 bpy.app.timers.register(initial,first_interval=6)
