@@ -1,9 +1,9 @@
 """X4D Workflow Kit. GPL-3.0-or-later."""
 import bpy
-from . import rendering
+from . import rendering,materials,material_dock,material_previews,material_editors,material_events,source_visibility
 from . import engine,operators,workspace,ui,coordinates,primitives,catalog,rail,icons,selection,generators,skin,deformers,extra_properties,extras,extra_operators,procedural_scripts,advanced_fx,svg_import
-bl_info={'name':'X4D Workflow Kit','author':'X4D Workflow contributors','version':(0,6,1),'blender':(4,5,0),'category':'3D View'}
-classes=rendering.classes+svg_import.classes+extra_properties.classes+extra_operators.classes+procedural_scripts.classes+primitives.classes+engine.classes+operators.classes+generators.classes+deformers.classes+catalog.classes+rail.classes+workspace.classes+ui.classes+skin.classes
+bl_info={'name':'X4D Workflow Kit','author':'X4D Workflow contributors','version':(0,6,6),'blender':(4,5,0),'category':'3D View'}
+classes=material_events.classes+material_dock.classes+materials.classes+rendering.classes+svg_import.classes+extra_properties.classes+extra_operators.classes+procedural_scripts.classes+primitives.classes+engine.classes+operators.classes+generators.classes+deformers.classes+catalog.classes+rail.classes+workspace.classes+ui.classes+skin.classes
 _registered=[]
 _header_added=False
 
@@ -16,13 +16,15 @@ def register():
         selection.subscribe()
         for cls in classes:
             bpy.utils.register_class(cls);_registered.append(cls)
+        bpy.types.WindowManager.cw_material=bpy.props.PointerProperty(type=bpy.types.Material)
+        bpy.types.OUTLINER_HT_header.append(materials.outliner_header)
         bpy.types.Object.cw_extra=bpy.props.PointerProperty(type=extra_properties.CWExtra)
         primitives.register_properties()
         bpy.types.WindowManager.cw_attribute_tab=bpy.props.EnumProperty(items=ui.attribute_tabs)
         coordinates.register()
         bpy.types.Object.cw=bpy.props.PointerProperty(type=engine.CWSettings)
         bpy.types.VIEW3D_HT_header.append(catalog.header);_header_added=True
-        skin.install();rendering.install()
+        skin.install();rendering.install();material_dock.install()
         for handlers,fn in _handlers():
             if fn not in handlers:handlers.append(fn)
         if not bpy.app.background and not bpy.app.timers.is_registered(workspace.first_run):bpy.app.timers.register(workspace.first_run,first_interval=.5)
@@ -36,7 +38,12 @@ def _handlers():
 def unregister():
     global _header_added
     if bpy.app.timers.is_registered(workspace.first_run):bpy.app.timers.unregister(workspace.first_run)
-    skin.restore();rendering.stop()
+    skin.restore();rendering.stop();material_previews.stop();material_events.stop();material_editors.stop();material_dock.stop()
+    if hasattr(bpy.types.Object,'cw'):source_visibility.stop()
+    if hasattr(bpy.types.WindowManager,'cw_material'):
+        bpy.types.OUTLINER_HT_header.remove(materials.outliner_header)
+        del bpy.types.WindowManager.cw_material
+        if hasattr(bpy.types.WindowManager,'cw_material_tile'):del bpy.types.WindowManager.cw_material_tile
     generators.stop();extras.stop();advanced_fx.stop();procedural_scripts.stop()
     selection.stop()
     rail.stop();workspace.layout.stop()
@@ -51,6 +58,7 @@ def unregister():
         if hasattr(owner,name):delattr(owner,name)
     for cls in reversed(_registered):bpy.utils.unregister_class(cls)
     _registered.clear()
+
 
 
 

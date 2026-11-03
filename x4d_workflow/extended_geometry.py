@@ -6,6 +6,7 @@ from .expressions import evaluate
 
 def raw_mesh(source,obj):
     if not source or source.type!='MESH':return [],[],[]
+    if source.mode=='EDIT':source.update_from_editmode()
     matrix=obj.matrix_world.inverted_safe() @ source.matrix_world
     return [tuple(matrix@v.co) for v in source.data.vertices],[tuple(p.vertices) for p in source.data.polygons],[tuple(e.vertices) for e in source.data.edges]
 
@@ -219,6 +220,10 @@ def build(obj,scene):
         if camera is None:extras.set_status(obj,'可指定摄像机作为距离参考 / Assign a camera to drive distance LOD')
         return
     if k in {'VOLUME_BUILDER','VOLUME_MESHER','SDF_SMOOTH','FOG_SMOOTH'}:
+        vv=[];ff=[];ee=[]
+        for item in sources:
+            vertices,faces,edges=raw_mesh(item,obj);offset=len(vv)
+            vv.extend(vertices);ff.extend(tuple(i+offset for i in face) for face in faces);ee.extend(tuple(i+offset for i in edge) for edge in edges)
         extras.mesh_write(obj,vv,ff,ee)
         if k=='FOG_SMOOTH':
             smooth=next((m for m in obj.modifiers if m.type=='SMOOTH'),None) or obj.modifiers.new('Fog Boundary Smooth','SMOOTH');smooth.factor=s.amount;smooth.iterations=s.iterations

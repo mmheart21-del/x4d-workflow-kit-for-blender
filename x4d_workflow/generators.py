@@ -14,7 +14,8 @@ def hide_source(child,host):
     if 'cw_generator_owner' not in child:
         child['cw_generator_visibility']=[int(child.hide_get()),int(child.hide_render)]
     if child.get('cw_generator_owner')!=host:child['cw_generator_owner']=host
-    if not child.hide_get():child.hide_set(True)
+    from .source_visibility import apply
+    apply(child)
     if not child.hide_render:child.hide_render=True
 
 def sync_one(obj):
@@ -29,6 +30,8 @@ def sync_one(obj):
         status(obj,'将源对象拖入此生成器下面 / Parent a source object here');return
     for child in children:hide_source(child,obj)
     source=children[0]
+    for child in children:
+        if child.type=='MESH' and child.mode=='EDIT':child.update_from_editmode()
     if kind in {'EXTRUDE','SWEEP'}:
         if source.type!='CURVE':status(obj,'首个子对象需要是样条 / First child must be a curve');return
         if obj.type!='CURVE':status(obj,'生成器类型不匹配 / Generator type mismatch');return
@@ -76,7 +79,9 @@ def sync_one(obj):
     if kind=='BOOLEAN':
         other=next((c for c in children[1:] if c.type=='MESH'),None)
         modifier=next((m for m in obj.modifiers if m.type=='BOOLEAN'),None)
-        if modifier:modifier.object=other
+        if modifier:
+            modifier.object=other
+            modifier.solver='EXACT'
         if not other:status(obj,'添加第二个网格子对象作为布尔工具 / Add a second mesh child');return
     status(obj,'')
 

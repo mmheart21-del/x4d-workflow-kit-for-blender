@@ -1,12 +1,14 @@
 此插件正在开发中，因时间问题，还有很多功能未实现，我会继续优化。同时欢迎各位玩家踊跃参与，争取早日实现插件的全部功能
 
-# X4D Workflow Kit — 0.6.1
+# X4D Workflow Kit — 0.6.6
 
-![Version](https://img.shields.io/badge/version-v0.6.1-blue)
+![Version](https://img.shields.io/badge/version-v0.6.6-blue)
 
-[English](README.md) · [下载 0.6.1](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.6.1) · [报告问题](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues)
+[English](README.md) · [下载 0.6.6](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.6.6) · [报告问题](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues)
 
 Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试版本为本机 Blender 5.2.3 LTS。运行时不需要 X4D、MCP 或网络。未来版本不视为已验证。
+
+如果你不想要这个界面，只需要 X4D 的部分功能，看看 [Swift 4D](https://plugins.laoma3d.xyz/p/1)。
 
 ## 社区交流与参与开发
 
@@ -29,7 +31,7 @@ Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试�
 
 ## 安装与恢复
 
-在 Blender 的偏好设置 → 获取扩展 → 右上菜单 → 从磁盘安装，选择 `dist/x4d_workflow-0.6.1.zip`。更新前停用旧版，再安装新版并启用。请确认扩展版本显示 0.6.1。
+在 Blender 的偏好设置 → 获取扩展 → 右上菜单 → 从磁盘安装，选择 `dist/x4d_workflow-0.6.6.zip`。更新前停用旧版，再安装新版并启用。请确认扩展版本显示 0.6.6。
 
 首次启用创建独立 X4D 工作区并切换，布局会分几次刷新完成。识别到未保存、未编辑的 Blender 默认立方体/摄像机/灯光场景时，进入新的空场景，原场景保留。已编辑场景和已保存作品不清空。不自动保存当前文件、不覆盖启动文件。已有文件重开尊重保存布局。
 
@@ -37,7 +39,17 @@ Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试�
 
 ![X4D 工作区](docs/images/workspace.png)
 
-## 本版变化
+## 0.6.6 更新
+
+- 内嵌材质面板显示 Blender 原生材质缩略图和使用此材质的对象列表，可点击选择对象。不另行指定预览渲染器或 CPU/GPU；缩略图并非属性预览区域同一帧画面的逐像素复制。
+- 单击材质显示原生材质属性，双击打开独立节点窗口；切换材质时复用并同步该窗口。
+- 鼠标位于材质面板内，按 Del 删除所选材质及其对象引用，支持 Ctrl+Z 恢复。
+- 大纲中选中布尔、体积生成器的输入对象时显示可编辑线框；取消选择后隐藏，移动时更新结果。
+- 修复布尔输入求值，以及体积生成器更新时丢失输入几何编辑的问题。
+- 修复区域渲染拖框结束、取消时的回调清理报错。
+- 点击对象时返回对象属性，包括重新点击同一个已选中的对象。
+
+## 早期版本功能
 
 - 右上工具组替换为区域渲染、渲染、渲染设置。区域渲染拖框后执行，Esc 取消；非摄像机视图使用临时摄像机，渲染结束或取消后自动恢复。
 - 工具悬停说明显示具体名称、用途与快捷键。

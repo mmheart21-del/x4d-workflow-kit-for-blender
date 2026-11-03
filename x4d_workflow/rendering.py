@@ -3,6 +3,7 @@ import bpy
 from bpy.props import EnumProperty
 from .catalog import label
 _jobs={}
+_borders={}
 
 def prepare(scene,space,region,border=None):
     if scene.as_pointer() in _jobs:raise RuntimeError('已有渲染任务 / A render is already running')
@@ -31,6 +32,7 @@ def finish(scene,*args):
         if not data.users:bpy.data.cameras.remove(data)
 
 def stop():
+    for operator,context in list(_borders.values()):operator.cleanup(context)
     for scene,_,_ in list(_jobs.values()):finish(scene)
     for handlers in (bpy.app.handlers.render_complete,bpy.app.handlers.render_cancel):
         if finish in handlers:handlers.remove(finish)
@@ -53,6 +55,7 @@ class CW_OT_render(bpy.types.Operator):
         self.area=area;self.region=region;self.start=None;self.end=None
         context.window.cursor_modal_set('CROSSHAIR');area.header_text_set(label('拖出渲染区域，Esc 取消','Drag a render region; Esc cancels'))
         self.handle=bpy.types.SpaceView3D.draw_handler_add(self.draw_region,(),'WINDOW','POST_PIXEL')
+        _borders[self.as_pointer()]=(self,context.copy())
         context.window_manager.modal_handler_add(self);return {'RUNNING_MODAL'}
     def draw_region(self):
         if not self.start or not self.end or bpy.context.area!=self.area:return
@@ -61,8 +64,18 @@ class CW_OT_render(bpy.types.Operator):
         x,y=self.start;u,v=self.end;shader=gpu.shader.from_builtin('UNIFORM_COLOR');shader.bind();shader.uniform_float('color',(.5,.7,1,1))
         batch_for_shader(shader,'LINE_STRIP',{'pos':[(x,y),(u,y),(u,v),(x,v),(x,y)]}).draw(shader)
     def cleanup(self,context):
-        bpy.types.SpaceView3D.draw_handler_remove(self.handle,'WINDOW');context.window.cursor_modal_restore();self.area.header_text_set(None);self.area.tag_redraw()
+        if _borders.pop(self.as_pointer(),None) is None:return
+        handle=getattr(self,'handle',None);self.handle=None
+        if handle is not None:
+            try:bpy.types.SpaceView3D.draw_handler_remove(handle,'WINDOW')
+            except (ValueError,ReferenceError):pass
+        window=context.get('window') if isinstance(context,dict) else context.window
+        try:
+            window.cursor_modal_restore();self.area.header_text_set(None);self.area.tag_redraw()
+        except (ReferenceError,RuntimeError):pass
+    def cancel(self,context):self.cleanup(context)
     def modal(self,context,event):
+        if self.as_pointer() not in _borders:return {'CANCELLED'}
         if event.type in {'ESC','RIGHTMOUSE'}:self.cleanup(context);return {'CANCELLED'}
         point=(max(0,min(self.region.width,event.mouse_x-self.region.x)),max(0,min(self.region.height,event.mouse_y-self.region.y)))
         if event.type=='LEFTMOUSE' and event.value=='PRESS':self.start=point

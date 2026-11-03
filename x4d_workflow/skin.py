@@ -33,6 +33,7 @@ def header(self,context):
     row.separator_spacer()
     for mode in ['REGION','RENDER','SETTINGS']:
         row.operator('cw.render',text='',icon_value=icons.icon_id('render_'+mode.lower())).mode=mode
+    row.operator('cw.materials',text='',icon='MATERIAL')
 
 def install():
     install_panels()

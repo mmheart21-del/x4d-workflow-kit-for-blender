@@ -2,11 +2,25 @@ This extension is under development. Many features remain unfinished due to time
 
 # X4D Workflow Kit for Blender
 
-![Version](https://img.shields.io/badge/version-v0.6.1-blue)
+![Version](https://img.shields.io/badge/version-v0.6.6-blue)
 
-[简体中文](README_ZH.md) · [Download](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.6.1) · [Report an issue](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues) · GPL-3.0-or-later · Windows · Blender 4.5+ target
+[简体中文](README_ZH.md) · [Download](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.6.6) · [Report an issue](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues) · GPL-3.0-or-later · Windows · Blender 4.5+ target
 
 A Blender extension providing a dedicated workspace, compact creation palettes, modeling generators, deformers, MoGraph-style tools, fields and familiar navigation shortcuts. This independent project is under active development.
+
+Prefer to keep your current interface and use only some X4D features? Take a look at [Swift 4D](https://plugins.laoma3d.xyz/p/1).
+
+## What’s new in 0.6.6
+
+- Embedded material browser with Blender-native material thumbnails and clickable objects using the selected material. No custom preview renderer or changes to your CPU/GPU settings; native thumbnails are not a pixel-for-pixel copy of the Properties preview widget.
+- Click a material to show its native Material Properties. Double-click to open a reusable shader node window; selecting another material updates that window.
+- Press Delete while the pointer is inside the material browser to remove the selected material, including its object assignments. Ctrl+Z restores it.
+- Selecting an input object of a Boolean or Volume generator in the Outliner shows an editable wireframe. Deselect it to hide the wireframe; moving it updates the generated result.
+- Fixed Boolean input evaluation and Volume Builder updates losing edits to input geometry.
+- Fixed the Region Render callback cleanup error when completing or cancelling a region selection.
+- Clicking an object, including the already active object, now returns the attribute manager from Material Properties to object controls.
+
+Tested on Windows with Blender **5.2.3 LTS**. Blender **4.5** remains the minimum compatibility target, not an additional tested version.
 
 ## Community & contributing
 
@@ -31,7 +45,7 @@ To contribute: discuss the approach → open or link an Issue → coordinate the
 
 ## Install
 
-Download **x4d_workflow-0.6.1.zip**, then Preferences → Get Extensions → menu → Install from Disk. Enable the extension. Do not install the source archive as the extension.
+Download **x4d_workflow-0.6.6.zip**, then Preferences → Get Extensions → menu → Install from Disk. Enable the extension. Do not install the source archive as the extension.
 
 An untouched factory startup enters a new empty scene. The original scene is preserved; existing edited or saved work is not cleared. Tools → Restore Blender restores managed theme/keymap state and switches back to the previous workspace. The extension never writes your startup file automatically.
 

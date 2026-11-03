@@ -8,6 +8,8 @@ def focus():
     if not manager:return
     for window in manager.windows:
         if window.workspace.name!='X4D':continue
+        from . import source_visibility
+        source_visibility.sync(window)
         obj=window.view_layer.objects.active
         token=(obj.as_pointer() if obj else 0,window.scene.as_pointer())
         # RNA context changes can be deferred while the first object is linked
@@ -17,8 +19,13 @@ def focus():
         _last[window.as_pointer()]=token
         context='CONSTRAINT' if obj else 'TOOL'
         for area in window.screen.areas:
-            if area.type=='PROPERTIES':
-                try:area.spaces.active.context=context
+            from .material_dock import is_dock
+            if area.type=='PROPERTIES' and not is_dock(area):
+                try:
+                    if isinstance(area.spaces.active.pin_id,bpy.types.Material):
+                        area.spaces.active.use_pin_id=False;area.spaces.active.pin_id=None
+                        area.spaces.active.context='TOOL'
+                    area.spaces.active.context=context
                 except TypeError:pass
                 area.tag_redraw()
 

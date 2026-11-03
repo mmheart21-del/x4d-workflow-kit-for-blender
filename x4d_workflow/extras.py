@@ -115,6 +115,7 @@ def loft(obj):
 
 def source_fingerprint(source):
     if not source:return None
+    if source.type=='MESH' and source.mode=='EDIT':source.update_from_editmode()
     if source.type=='MESH':return (source.as_pointer(),hash(tuple(tuple(v.co) for v in source.data.vertices)),len(source.data.polygons),tuple(x for row in source.matrix_world for x in row))
     if source.type=='CURVE':return (source.as_pointer(),tuple(tuple(p) for p in curve_points(source)))
     return (source.as_pointer(),tuple(source.location))

@@ -97,7 +97,10 @@ def first_run():
     if bpy.app.background:return None
     if _respect_saved and bpy.data.filepath and bpy.context.workspace.name!='X4D':return None
     try:
-        if bpy.context.window:bpy.ops.cw.workspace()
+        if bpy.context.window:
+            bpy.ops.cw.workspace()
+            from . import material_dock,material_events
+            if material_dock.is_open(bpy.context.window):material_events.start(bpy.context.window)
     except Exception as exc:print('CW workspace:',exc)
     return None
 
@@ -106,6 +109,10 @@ def load_post(_):
     global _respect_saved
     from . import selection,generators,extras,advanced_fx,procedural_scripts
     generators.stop();extras.stop();advanced_fx.stop();procedural_scripts.stop()
+    from . import material_previews
+    material_previews.stop()
+    from . import material_events,material_editors,material_dock
+    material_events.stop();material_editors.stop();material_dock._areas.clear()
     selection.subscribe()
     _respect_saved=bool(bpy.data.filepath)
     if not bpy.app.background and not bpy.app.timers.is_registered(first_run):bpy.app.timers.register(first_run,first_interval=.3)
