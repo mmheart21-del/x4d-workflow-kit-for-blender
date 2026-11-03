@@ -10,18 +10,6 @@ A Blender extension providing a dedicated workspace, compact creation palettes, 
 
 Prefer to keep your current interface and use only some X4D features? Take a look at [Swift 4D](https://plugins.laoma3d.xyz/p/1).
 
-## What’s new in 0.6.6
-
-- Embedded material browser with Blender-native material thumbnails and clickable objects using the selected material. No custom preview renderer or changes to your CPU/GPU settings; native thumbnails are not a pixel-for-pixel copy of the Properties preview widget.
-- Click a material to show its native Material Properties. Double-click to open a reusable shader node window; selecting another material updates that window.
-- Press Delete while the pointer is inside the material browser to remove the selected material, including its object assignments. Ctrl+Z restores it.
-- Selecting an input object of a Boolean or Volume generator in the Outliner shows an editable wireframe. Deselect it to hide the wireframe; moving it updates the generated result.
-- Fixed Boolean input evaluation and Volume Builder updates losing edits to input geometry.
-- Fixed the Region Render callback cleanup error when completing or cancelling a region selection.
-- Clicking an object, including the already active object, now returns the attribute manager from Material Properties to object controls.
-
-Tested on Windows with Blender **5.2.3 LTS**. Blender **4.5** remains the minimum compatibility target, not an additional tested version.
-
 ## Community & contributing
 
 **GitHub is the primary home for X4D discussion, bug reports and development. No separate chat server is required.** Start with the [community guide](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/discussions/2).
