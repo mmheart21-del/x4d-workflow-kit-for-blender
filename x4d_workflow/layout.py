@@ -4,10 +4,10 @@ _pending=[]
 _errors=[]
 REVISION=4
 
-def queue(window):
+def queue(window, workspace):
     if bpy.app.background:return
-    if any(w==window for w,_ in _pending):return
-    _pending.append((window,0))
+    if any(w==window for w,_,_,_ in _pending):return
+    _pending.append((window,workspace,0,0))
     if not bpy.app.timers.is_registered(tick):bpy.app.timers.register(tick,first_interval=.25)
 
 def join(window,source,target):
@@ -25,15 +25,21 @@ def configure_view(area):
 
 def tick():
     if not _pending:return None
-    window,stage=_pending[0]
-    if window.workspace.name!='X4D':
+    window,workspace,stage,attempts=_pending[0]
+    if not any(w==window for w in bpy.context.window_manager.windows):
+        _pending.pop(0);return .25 if _pending else None
+    if window.workspace!=workspace:
+        if stage==0 and attempts<8:
+            _pending[0]=(window,workspace,stage,attempts+1)
+            return .25
         _pending.pop(0);return .25 if _pending else None
     screen=window.screen
     try:
         if stage==0:
-            if window.workspace.get('cw_layout_revision',0)>=REVISION:
-                from . import rail
-                rail.start(window);_pending.pop(0);return .25 if _pending else None
+            from . import rail
+            rail.start(window)
+            if workspace.get('cw_layout_revision',0)>=REVISION:
+                _pending.pop(0);return .25 if _pending else None
             # Collapse the previous release's central dope sheet first so its
             # viewport shares a full-height edge with the obsolete render area.
             main=max((a for a in screen.areas if a.type=='VIEW_3D'),key=lambda a:a.width*a.height)
@@ -77,7 +83,6 @@ def tick():
                 with bpy.context.temp_override(window=window,area=out):
                     bpy.ops.screen.area_move(x=out.x-1,y=out.y+out.height//2,delta=int(window.width*.775)-out.x)
         elif stage==5:
-            from . import rail
             for area in screen.areas:
                 if area.type=='VIEW_3D':configure_view(area)
                 elif area.type=='PROPERTIES':
@@ -86,13 +91,12 @@ def tick():
                     if region and region.width>4:
                         with bpy.context.temp_override(window=window,area=area):bpy.ops.screen.region_toggle(region_type='NAVIGATION_BAR')
                 area.tag_redraw()
-            rail.start(window)
             from . import selection
             selection.focus()
             window.workspace['cw_layout_revision']=REVISION
             if 'cw_layout_error' in window.workspace:del window.workspace['cw_layout_error']
             _pending.pop(0);return .25 if _pending else None
-        _pending[0]=(window,stage+1)
+        _pending[0]=(window,workspace,stage+1,0)
     except Exception as exc:
         _errors.append(str(exc));print('CW layout:',exc)
         window.workspace['cw_layout_error']=str(exc);_pending.pop(0)

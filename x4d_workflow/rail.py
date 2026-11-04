@@ -209,12 +209,16 @@ def start(window):
     if _handle is None:_handle=bpy.types.SpaceView3D.draw_handler_add(draw,(),'WINDOW','POST_PIXEL')
     if _running.get(window.as_pointer())!=_generation:
         with bpy.context.temp_override(window=window):bpy.ops.cw.rail('INVOKE_DEFAULT')
-def stop():
-    global _enabled,_handle,_generation
+def reset_input():
+    global _generation
     _generation+=1;_running.clear()
+    _hover.clear();_pointer.clear();_pressed.clear();drag_tools.armed.clear();drag_tools.choices.clear()
+
+def stop():
+    global _enabled,_handle
+    reset_input()
     _enabled=False
     if _handle is not None:bpy.types.SpaceView3D.draw_handler_remove(_handle,'WINDOW');_handle=None
-    _hover.clear();_pointer.clear();_pressed.clear();drag_tools.armed.clear();drag_tools.choices.clear()
 classes=[CW_OT_tool,CW_OT_rail]
 
 

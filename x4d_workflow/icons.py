@@ -16,7 +16,11 @@ def register():
         for filename in sorted(os.listdir(ROOT)):
             if filename.endswith('.png'):
                 width,height,pixels=read_rgba(os.path.join(ROOT,filename))
-                preview=collection.new(filename[:-4]);preview.image_size=(width,height);preview.image_pixels_float=pixels
+                preview = collection.new(filename[:-4])
+                preview.image_size = (width, height)
+                preview.image_pixels_float = pixels
+                preview.icon_size = (width, height)
+                preview.icon_pixels_float = pixels
     except Exception:
         bpy.utils.previews.remove(collection)
         raise

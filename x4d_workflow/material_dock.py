@@ -4,13 +4,6 @@ from .catalog import label
 _areas=set();_items=[];_draws=[];_polls=[]
 _highlight_handle=None
 
-def track_creation(scene, depsgraph):
-    materials=[m for m in bpy.data.materials if not m.library]
-    latest=max((m.get('x4d_created',0) for m in materials),default=0)
-    for mat in sorted((m for m in materials if 'x4d_created' not in m),key=lambda m:m.session_uid):
-        latest+=1
-        mat['x4d_created']=latest
-
 def ordered_materials():
     scene=bpy.context.scene
     used={slot.material for obj in scene.objects for slot in obj.material_slots} if scene else set()

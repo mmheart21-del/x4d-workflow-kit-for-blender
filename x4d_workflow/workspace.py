@@ -73,13 +73,6 @@ class CW_OT_workspace(bpy.types.Operator):
             if existing:existing.name='X4D'
         if existing:
             window.workspace=existing
-            if not bpy.app.background:
-                def resume():
-                    if window.workspace==existing:
-                        from . import rail
-                        rail.start(window)
-                    return None
-                bpy.app.timers.register(resume,first_interval=.3)
         else:
             previous=window.workspace
             before=set(bpy.data.workspaces)
@@ -95,7 +88,7 @@ class CW_OT_workspace(bpy.types.Operator):
                 if area.type=='PROPERTIES':
                     area.type='PROPERTIES';area.spaces.active.context='CONSTRAINT'
             created['cw_workspace']=True
-        apply_theme();keymaps();layout.queue(window);return {'FINISHED'}
+        apply_theme();keymaps();layout.queue(window, existing or created);return {'FINISHED'}
 
 class CW_OT_restore(bpy.types.Operator):
     bl_idname='cw.restore';bl_label='Restore Blender'
@@ -109,14 +102,24 @@ class CW_OT_restore(bpy.types.Operator):
 
 def first_run():
     if bpy.app.background:return None
-    if _respect_saved and bpy.data.filepath and bpy.context.workspace.name!='X4D':return None
+    window = bpy.context.window or next(iter(bpy.context.window_manager.windows), None)
+    if window is None:return None
+    if _respect_saved and bpy.data.filepath and window.workspace.name!='X4D':return None
     try:
-        if bpy.context.window:
+        with bpy.context.temp_override(window=window):
             bpy.ops.cw.workspace()
             from . import material_dock,material_events
-            if material_dock.is_open(bpy.context.window):material_events.start(bpy.context.window)
+            if material_dock.is_open(window):material_events.start(window)
     except Exception as exc:print('CW workspace:',exc)
     return None
+
+@persistent
+def load_pre(_):
+    # File loads discard modal handlers and non-persistent timers.
+    from . import rail
+    layout.stop()
+    rail.reset_input()
+
 
 @persistent
 def load_post(_):
