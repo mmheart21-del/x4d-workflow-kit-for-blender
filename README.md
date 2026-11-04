@@ -2,9 +2,9 @@ This extension is under development. Many features remain unfinished due to time
 
 # X4D Workflow Kit for Blender
 
-![Version](https://img.shields.io/badge/version-v0.6.6-blue)
+![Version](https://img.shields.io/badge/version-v0.7.6-blue)
 
-[简体中文](README_ZH.md) · [Download](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.6.6) · [Report an issue](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues) · GPL-3.0-or-later · Windows · Blender 4.5+ target
+[简体中文](README_ZH.md) · [Download](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.7.6) · [Report an issue](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues) · GPL-3.0-or-later · Windows · Blender 4.5+ target
 
 A Blender extension providing a dedicated workspace, compact creation palettes, modeling generators, deformers, MoGraph-style tools, fields and familiar navigation shortcuts. This independent project is under active development.
 
@@ -33,7 +33,15 @@ To contribute: discuss the approach → open or link an Issue → coordinate the
 
 ## Install
 
-Download **x4d_workflow-0.6.6.zip**, then Preferences → Get Extensions → menu → Install from Disk. Enable the extension. Do not install the source archive as the extension.
+### Remote installation
+
+1. Open the [X4D self-service page](https://plugins.laoma3d.xyz/p/2) and click **免费获取 (Get for Free)** to receive your repository URL and access token.
+2. In Blender, open **Edit → Preferences → Get Extensions → Repositories**, add a remote repository, paste the URL and enter the access token.
+3. Refresh the repository, find **X4D Workflow Kit**, and click **Install**. Use the same repository to check for and download updates.
+
+### Install from disk
+
+Download **x4d_workflow-0.7.6.zip**, then Preferences → Get Extensions → menu → Install from Disk. Enable the extension. Do not install the source archive as the extension.
 
 An untouched factory startup enters a new empty scene. The original scene is preserved; existing edited or saved work is not cleared. Tools → Restore Blender restores managed theme/keymap state and switches back to the previous workspace. The extension never writes your startup file automatically.
 
@@ -41,7 +49,9 @@ The upper-right controls are Region Render, Render Current View and Render Setti
 
 ## Workflow
 
-E / R / T: move / rotate / scale. H: frame all. S: frame selected. C: make editable. Alt+G: group. Alt+mouse or 1/2/3+left-drag: navigate. F1–F5: perspective/top/right/front/quad. M,T / M,S / U,A / U,I: command sequences. These shortcuts apply in the X4D workspace viewport.
+E / R / T: move / rotate / scale. H: frame all. S: frame selected. C: make editable. Alt+G: group. Alt+mouse or 1/2/3+left-drag: navigate. F1–F5: perspective/top/right/front/quad. M,T / M,S / U,A / U,I: command sequences. These shortcuts apply in the X4D workspace viewport. See the [shortcut reference](docs/SHORTCUTS.md) for command meanings and differences.
+
+![X4D V quick menu](docs/images/v-quick-menu.png)
 
 ![MoGraph](docs/images/mograph.png)
 

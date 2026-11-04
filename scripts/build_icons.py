@@ -21,7 +21,7 @@ class Canvas:
     def line(self,pts,c,width=1.8):
         for a,b in zip(pts,pts[1:]):
             x1,y1=a[0]*S,a[1]*S;x2,y2=b[0]*S,b[1]*S
-            d=(x2-x1)**2+(y2-y1)**2;r=width*S/2
+            d=(x2-x1)**2+(y2-y1)**2;r=width*S*.72
             for y in range(max(0,int(min(y1,y2)-r)),min(N,int(max(y1,y2)+r)+1)):
                 for x in range(max(0,int(min(x1,x2)-r)),min(N,int(max(x1,x2)+r)+1)):
                     t=max(0,min(1,((x-x1)*(x2-x1)+(y-y1)*(y2-y1))/d)) if d else 0
@@ -41,7 +41,7 @@ class Canvas:
         def chunk(t,data):return struct.pack('>I',len(data))+t+data+struct.pack('>I',zlib.crc32(t+data)&0xffffffff)
         with open(path,'wb') as f:f.write(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',W,W,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
 
-CYAN=(111,207,239,255);GREEN=(112,220,134,255);PURPLE=(158,145,238,255);PINK=(201,147,217,255);GRAY=(182,194,215,255)
+CYAN=(111,207,239,255);GREEN=(141,245,151,255);PURPLE=(193,177,255,255);PINK=(244,172,241,255);GRAY=(220,232,249,255)
 def shaded(c,k):return tuple(min(255,int(v*k)) for v in c[:3])+(255,)
 def cube(p,c,x=24,y=24,size=17,wire=False):
     a=[(x,y+size),(x+size*.87,y+size*.5),(x,y),(x-size*.87,y+size*.5)]
@@ -147,3 +147,28 @@ for kind in ['region','render','settings']:
     p.save(os.path.join(out,'render_'+kind+'.png'))
 print('CW_ICONS',len(os.listdir(out)))
 
+# Mesh toolbar symbols are drawn separately so they remain legible inside a tile.
+mesh_symbols={
+ 'POLY_BUILD':[[(7,12),(14,36),(36,38),(41,14),(7,12)],[(14,36),(41,14)]],
+ 'ADD_POINT':[[(24,8),(24,40)],[(8,24),(40,24)]],
+ 'FILL_HOLE':[[(8,8),(40,8),(40,40),(8,40),(8,8)],[(14,14),(34,34)],[(14,34),(34,14)]],
+ 'BEVEL':[[(8,10),(8,29),(20,40),(40,40)],[(16,10),(16,26),(23,33),(40,33)]],
+ 'EXTRUDE':[[(8,12),(24,5),(40,12),(24,19),(8,12)],[(24,19),(24,41)],[(17,34),(24,41),(31,34)]],
+ 'WELD':[[(8,34),(24,22),(40,34)],[(24,22),(24,9)]],
+ 'CONNECT':[[(10,12),(38,36)],[(9,18),(9,10),(17,10)],[(31,38),(39,38),(39,30)]],
+ 'SET_POINT':[[(8,12),(40,12)],[(16,12),(16,38)],[(8,27),(24,27)],[(28,26),(40,38)]],
+ 'SLIDE':[[(8,24),(40,24)],[(14,17),(8,24),(14,31)],[(34,17),(40,24),(34,31)]],
+ 'BRIDGE':[[(7,10),(7,36),(15,36),(15,20),(33,20),(33,36),(41,36),(41,10)]],
+ 'SUBDIVIDE':[[(8,8),(40,8),(40,40),(8,40),(8,8)],[(8,24),(40,24)],[(24,8),(24,40)]],
+ 'ROTATE_EDGE':[[(8,12),(13,35),(38,36),(41,12),(8,12)],[(13,35),(41,12)],[(26,12),(32,12),(32,18)]],
+ 'INSET':[[(7,7),(41,7),(41,41),(7,41),(7,7)],[(15,15),(33,15),(33,33),(15,33),(15,15)]],
+ 'DISCONNECT':[[(6,10),(19,10),(19,38),(6,38),(6,10)],[(29,10),(42,10),(42,38),(29,38),(29,10)]],
+ 'NORMAL_MOVE':[[(6,12),(42,12)],[(24,12),(24,40)],[(16,32),(24,40),(32,32)]],
+ 'KNIFE':[[(8,9),(30,37),(40,41),(35,29),(14,5),(8,9)]],
+ 'SMOOTH':[[(6,13),(14,26),(22,31),(29,28),(42,15)],[(6,7),(14,20),(22,25),(29,22),(42,9)]],
+ 'SYMMETRIZE':[[(24,5),(24,43)],[(19,12),(6,12),(19,35),(19,12)],[(29,12),(42,12),(29,35),(29,12)]],
+}
+for name,paths in mesh_symbols.items():
+    p=Canvas()
+    for path in paths:p.line(path,(255,194,104,255),3.2)
+    p.save(os.path.join(out,'mesh_'+name.lower()+'.png'))

@@ -2,14 +2,16 @@
 import bpy,math,time
 _running={};_generation=0
 
-def grid_columns(region):
+def grid_columns(region,count=None):
     left=region.view2d.region_to_view(0,0)[0];right=region.view2d.region_to_view(region.width,0)[0]
     scale=bpy.context.preferences.system.ui_scale
-    return max(1,int((right-left)/(85*scale)))
+    columns=max(1,int((right-left)/(85*scale)))
+    # Native column-major grid_flow removes empty trailing columns.
+    return math.ceil(count/math.ceil(count/columns)) if count else columns
 
 def rectangles(area,region,count,scale=None):
     scale=bpy.context.preferences.system.ui_scale if scale is None else scale
-    columns=grid_columns(region);rows=math.ceil(count/columns)
+    columns=grid_columns(region,count);rows=math.ceil(count/columns)
     if not rows:return []
     left=region.view2d.region_to_view(0,0)[0];right=region.view2d.region_to_view(region.width,0)[0]
     cell=(right-left-20*scale)/columns

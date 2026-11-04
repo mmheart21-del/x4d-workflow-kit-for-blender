@@ -4,7 +4,7 @@ errors=[]
 mod=addon_utils.enable('x4d_workflow',default_set=False,handle_error=lambda:errors.append(sys.exc_info()))
 assert mod is not None and not errors,errors
 assert mod.__addon_enabled__
-assert len(mod.icons._preview)==131
+assert len(mod.icons._preview)==149
 assert hasattr(bpy.types.Object,'cw')
 addon_utils.disable('x4d_workflow',default_set=False)
 assert not hasattr(bpy.types.Object,'cw')
@@ -25,3 +25,4 @@ mod.icons.read_rgba=original
 with RestrictBlend():mod.register()
 mod.unregister();mod.unregister()
 print('CW_RESTRICTED_ENABLE_OK')
+

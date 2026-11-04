@@ -32,8 +32,11 @@ def keymaps():
     km=kc.keymaps.new(name='3D View',space_type='VIEW_3D')
     for key,op,props,mods in [
         ('E','wm.tool_set_by_id',{'name':'builtin.move'},{}),('R','wm.tool_set_by_id',{'name':'builtin.rotate'},{}),('T','wm.tool_set_by_id',{'name':'builtin.scale'},{}),
+        ('V','wm.call_menu_pie',{'name':'CW_MT_v_pie'},{}),
         ('H','view3d.view_all',{},{}),('S','view3d.view_selected',{},{}),('C','cw.action',{'action':'EDITABLE'},{}),
-        ('G','cw.action',{'action':'GROUP'},{'alt':True}),('M','cw.sequence',{'prefix':'M'},{}),('U','cw.sequence',{'prefix':'U'},{}),
+        ('G','cw.action',{'action':'GROUP'},{'alt':True}),('M','cw.sequence',{'prefix':'M'},{}),('U','cw.sequence',{'prefix':'U'},{}),('K','cw.sequence',{'prefix':'K'},{}),
+        ('A','cw.select',{'action':'SELECT'},{'ctrl':True}),('A','cw.select',{'action':'DESELECT'},{'ctrl':True,'shift':True}),
+        ('B','cw.render',{'mode':'SETTINGS'},{'ctrl':True}),('R','cw.render',{'mode':'RENDER'},{'ctrl':True}),('R','cw.render',{'mode':'RENDER'},{'shift':True}),
         ('F1','cw.view',{'view':'PERSP'},{}),('F2','cw.view',{'view':'TOP'},{}),('F3','cw.view',{'view':'RIGHT'},{}),('F4','cw.view',{'view':'FRONT'},{}),('F5','cw.view',{'view':'QUAD'},{}),
         ('LEFTMOUSE','view3d.move',{}, {'key_modifier':'ONE'}),('LEFTMOUSE','view3d.zoom',{}, {'key_modifier':'TWO'}),('LEFTMOUSE','view3d.rotate',{}, {'key_modifier':'THREE'}),
         ('LEFTMOUSE','view3d.rotate',{}, {'alt':True}),('MIDDLEMOUSE','view3d.move',{}, {'alt':True}),('RIGHTMOUSE','view3d.zoom',{}, {'alt':True})]:
@@ -41,15 +44,28 @@ def keymaps():
         kmi.properties.command=op
         kmi.properties.argument=str(next(iter(props.values()),''))
         keys.append((km,kmi))
+    # Mesh has higher priority than 3D View, so mirror only the intended keys.
+    mesh=kc.keymaps.new(name='Mesh',space_type='EMPTY')
+    routes=[('E','wm.tool_set_by_id','builtin.move'),('R','wm.tool_set_by_id','builtin.rotate'),('T','wm.tool_set_by_id','builtin.scale'),('H','view3d.view_all',''),('S','view3d.view_selected','')]
+    routes += [(key,'cw.sequence',key) for key in ('M','U','K')]
+    routes += [('V','wm.call_menu_pie','CW_MT_v_pie')]
+    routes += [('D','cw.model','EXTRUDE'),('B','cw.model','BRIDGE')]
+    for key,op,arg in routes:
+        item=mesh.keymap_items.new('cw.command',key,'PRESS');item.properties.command=op;item.properties.argument=arg;keys.append((mesh,item))
+    for key,op,arg,mods in [('A','cw.select','SELECT',{'ctrl':True}),('A','cw.select','DESELECT',{'ctrl':True,'shift':True}),('B','cw.render','SETTINGS',{'ctrl':True}),('R','cw.render','RENDER',{'ctrl':True}),('R','cw.render','RENDER',{'shift':True}),('BACK_SPACE','cw.model','DISSOLVE',{'alt':True}),('DEL','cw.model','DISSOLVE',{'alt':True}),('BACK_SPACE','cw.model','DELETE',{'ctrl':True}),('DEL','cw.model','DELETE',{'ctrl':True})]:
+        item=mesh.keymap_items.new('cw.command',key,'PRESS',**mods);item.properties.command=op;item.properties.argument=arg;keys.append((mesh,item))
 
 class CW_OT_workspace(bpy.types.Operator):
-    bl_idname='cw.workspace';bl_label='进入 X4D 工作区 / Enter X4D Workspace'
+    bl_idname='cw.workspace';bl_label='Enter X4D Workspace'
     def execute(self,context):
         window=context.window
         if not window:return {'CANCELLED'}
         # Keep startup contents recoverable; only a pristine unsaved factory scene
         # enters a new empty scene. Never infer this from names alone.
         if not bpy.data.filepath and is_factory_scene(context.scene):
+            for material in bpy.data.materials:
+                if material.name=='Material' and material.users<=1 and not material.library:
+                    material['x4d_factory_material']=True
             bpy.ops.cw.new_scene()
         existing=bpy.data.workspaces.get('X4D')
         if not existing:
@@ -76,15 +92,13 @@ class CW_OT_workspace(bpy.types.Operator):
             window.workspace=created
             screen=created.screens[0]
             for area in screen.areas:
-                if area.type=='VIEW_3D':
-                    area.spaces.active.show_region_ui=False
-                elif area.type=='PROPERTIES':
+                if area.type=='PROPERTIES':
                     area.type='PROPERTIES';area.spaces.active.context='CONSTRAINT'
             created['cw_workspace']=True
         apply_theme();keymaps();layout.queue(window);return {'FINISHED'}
 
 class CW_OT_restore(bpy.types.Operator):
-    bl_idname='cw.restore';bl_label='恢复 Blender 设置 / Restore Blender'
+    bl_idname='cw.restore';bl_label='Restore Blender'
     def execute(self,context):
         restore()
         cw=bpy.data.workspaces.get('X4D')

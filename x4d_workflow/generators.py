@@ -105,7 +105,7 @@ def sync(scene,*args):
 def stop():_signatures.clear()
 
 class CW_OT_generator(bpy.types.Operator):
-    bl_idname='cw.generator';bl_label='创建生成器 / Create Generator';bl_options={'REGISTER','UNDO'}
+    bl_idname='cw.generator';bl_label='Create Generator';bl_options={'REGISTER','UNDO'}
     kind:StringProperty(default='SUBSURF')
     def execute(self,context):
         if self.kind not in NAMES:return {'CANCELLED'}

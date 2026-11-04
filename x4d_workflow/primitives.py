@@ -33,16 +33,17 @@ def rebuild(self,context):
 
 class CWPrimitive(bpy.types.PropertyGroup):
     kind:StringProperty()
-    size:FloatVectorProperty(name='Size / 尺寸 (Blender XYZ)',size=3,default=(2,2,2),unit='LENGTH',min=.001,update=rebuild)
-    subdivisions:IntProperty(name='分段 / Segments',default=1,min=1,max=128,update=rebuild)
-    segments:IntProperty(name='Segments / 分段',default=32,min=4,max=256,update=rebuild)
-    tube:FloatProperty(name='Tube / 管半径',default=.25,min=.001,update=rebuild)
+    size:FloatVectorProperty(name='Size',size=3,default=(2,2,2),unit='LENGTH',min=.001,update=rebuild)
+    subdivisions:IntProperty(name='Segments',default=1,min=1,max=128,update=rebuild)
+    segments:IntProperty(name='Segments',default=32,min=4,max=256,update=rebuild)
+    tube:FloatProperty(name='Tube',default=.25,min=.001,update=rebuild)
 
 class CW_OT_primitive(bpy.types.Operator):
-    bl_idname='cw.primitive';bl_label='参数基础体 / Parametric Primitive';bl_options={'REGISTER','UNDO'}
+    bl_idname='cw.primitive';bl_label='Parametric Primitive';bl_options={'REGISTER','UNDO'}
     kind:StringProperty(default='CUBE')
     def execute(self,context):
-        obj=bpy.data.objects.new(self.kind,bpy.data.meshes.new(self.kind));context.collection.objects.link(obj)
+        name=bpy.app.translations.pgettext_data({'SPHERE':'Sphere','TORUS':'Torus'}.get(self.kind,self.kind.title()))
+        obj=bpy.data.objects.new(name,bpy.data.meshes.new(name));context.collection.objects.link(obj)
         obj.cw_primitive.kind=self.kind;rebuild(obj.cw_primitive,context)
         for selected in context.selected_objects:selected.select_set(False)
         obj.select_set(True);context.view_layer.objects.active=obj

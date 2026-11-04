@@ -14,7 +14,11 @@ def field(field,world,index,scene,stack=()):
     if len(stack)>16:raise ValueError('Field group nesting exceeds 16')
     kind=field.cw.field_type;s=field.cw_extra;r=max(field.cw.radius,1e-6)
     p=field.matrix_world.inverted_safe()@world;x,y,z=p;time=scene.frame_current/max(1,scene.render.fps)
-    if kind in {'LINEAR','SPHERE','BOX','RANDOM'}:return field_weight(kind,p,r,seed=field.cw.seed,index=index)
+    if kind in {'LINEAR','SPHERE','BOX','RANDOM'}:
+        if kind=='LINEAR' and field.cw.inner_range:
+            return field_weight(kind,p,r*field.cw.inner_range)
+        value=field_weight(kind,p,r,seed=field.cw.seed,index=index)
+        return clamp(value/max(.01,1-field.cw.inner_range)) if kind in {'SPHERE','BOX'} else value
     if kind=='CYLINDER':return clamp(min(1-math.hypot(x,y)/r,1-abs(z)/(s.height/2)))
     if kind=='CONE':
         height=max(s.height,1e-6);level=(z+height/2)/height

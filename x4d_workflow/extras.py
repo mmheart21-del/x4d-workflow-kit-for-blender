@@ -123,7 +123,7 @@ def source_fingerprint(source):
 def signature(obj,scene):
     s=obj.cw_extra
     animated=s.kind in {'FORMULA_SPLINE','MOSPLINE','TRACER','FORMULA_DEFORM','MELT','LOD','PYTHON_GENERATOR','FRACTURE','VORONOI','MOEXTRUDE'}
-    return (s.kind,scene.frame_current if animated else 0,s.count,s.resolution,s.radius,s.height,s.inner,s.amount,s.speed,tuple(s.size),s.seed,s.iterations,s.voxel,s.threshold,s.formula,s.x_formula,s.y_formula,s.z_formula,s.start,s.end,s.operation,source_fingerprint(s.source),source_fingerprint(s.target),s.image.as_pointer() if s.image else 0,tuple((link.target.as_pointer(),source_fingerprint(link.target)) for link in obj.cw.inputs if link.target))
+    return (s.kind,scene.frame_current if animated else 0,s.count,s.resolution,s.radius,s.height,s.inner,s.amount,s.speed,tuple(s.size),s.seed,s.iterations,s.voxel,s.threshold,s.formula,s.x_formula,s.y_formula,s.z_formula,s.start,s.end,s.operation,source_fingerprint(s.source),source_fingerprint(s.target),s.image.as_pointer() if s.image else 0,tuple((link.enabled,link.target.as_pointer(),source_fingerprint(link.target)) for link in obj.cw.inputs if link.target))
 
 @persistent
 def update(scene,*args):

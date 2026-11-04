@@ -2,6 +2,49 @@
 import bpy
 from .catalog import label
 _areas=set();_items=[];_draws=[];_polls=[]
+_highlight_handle=None
+
+def track_creation(scene, depsgraph):
+    materials=[m for m in bpy.data.materials if not m.library]
+    latest=max((m.get('x4d_created',0) for m in materials),default=0)
+    for mat in sorted((m for m in materials if 'x4d_created' not in m),key=lambda m:m.session_uid):
+        latest+=1
+        mat['x4d_created']=latest
+
+def ordered_materials():
+    scene=bpy.context.scene
+    used={slot.material for obj in scene.objects for slot in obj.material_slots} if scene else set()
+    return sorted(
+        (m for m in bpy.data.materials if not getattr(m,'is_grease_pencil',False)
+         and (not m.get('x4d_factory_material') or m in used)),
+        key=lambda m:(m.get('x4d_created',0),m.session_uid),reverse=True)
+
+def highlighted(window):
+    obj=window.view_layer.objects.active
+    if obj is None or not obj.select_get():return set()
+    return {slot.material.name for slot in obj.material_slots if slot.material}
+
+def draw_highlights():
+    context=bpy.context
+    if not context.window or not context.region or not is_dock(context.area):return
+    names=highlighted(context.window)
+    if not names:return
+    import gpu
+    from gpu_extras.batch import batch_for_shader
+    from .material_events import rectangles
+    materials=ordered_materials()
+    shader=gpu.shader.from_builtin('UNIFORM_COLOR')
+    shader.bind();shader.uniform_float('color',(.12,.7,1.,1.))
+    scale=context.preferences.system.ui_scale
+    for mat,(left,top,width,height) in zip(materials,rectangles(context.area,context.region,len(materials))):
+        if mat.name not in names:continue
+        x,y=context.region.view2d.view_to_region(left,top+2*scale,clip=False)
+        u,v=context.region.view2d.view_to_region(left+width-3*scale,top-height-20*scale,clip=False)
+        t=max(2,round(2*scale))
+        points=[]
+        for a,b,c,d in [(x,v,u,v+t),(x,y-t,u,y),(x,v,x+t,y),(u-t,v,u,y)]:
+            points.extend([(a,b),(c,b),(c,d),(a,b),(c,d),(a,d)])
+        batch_for_shader(shader,'TRIS',{'pos':points}).draw(shader)
 def is_dock(area):
     if area is None:return False
     if area.as_pointer() in _areas:return True
@@ -14,7 +57,7 @@ def is_open(window):return any(is_dock(a) for a in window.screen.areas)
 def items(self,context):
     global _items
     result=[]
-    for i,mat in enumerate(bpy.data.materials):
+    for i,mat in enumerate(ordered_materials()):
         if getattr(mat,'is_grease_pencil',False):continue
         mat.preview_ensure()
         result.append((mat.name,mat.name,'Native material preview',mat.preview.icon_id,i))
@@ -54,6 +97,9 @@ def toggle(context):
     install();return {'FINISHED'}
 
 def install():
+    global _highlight_handle
+    if _highlight_handle is None and not bpy.app.background:
+        _highlight_handle=bpy.types.SpaceProperties.draw_handler_add(draw_highlights,(),'WINDOW','POST_PIXEL')
     if _draws:return
     def wrap(original):
         def draw(self,context):
@@ -74,6 +120,11 @@ def install():
             bpy.utils.unregister_class(cls);bpy.utils.register_class(cls)
 
 def stop():
+    global _highlight_handle
+    if _highlight_handle is not None:
+        try:bpy.types.SpaceProperties.draw_handler_remove(_highlight_handle,'WINDOW')
+        except (ValueError,ReferenceError):pass
+        _highlight_handle=None
     for cls,original,wrapper in _draws:
         if cls.draw is wrapper:cls.draw=original
     for cls,had_poll,own_poll in _polls:
@@ -90,9 +141,9 @@ class CW_PT_material_dock(bpy.types.Panel):
     def draw(self,context):
         l=self.layout;wm=context.window_manager
         row=l.row(align=True);row.label(text=label('材质','Materials'));row.operator('cw.material_new',text='',icon='ADD');row.operator('cw.material_refresh',text='',icon='FILE_REFRESH');row.operator('cw.materials',text='',icon='PANEL_CLOSE')
-        if not items(wm,context):l.label(text=label('点击 + 新建材质','Click + to create a material'));return
+        if not items(wm,context):return
         from .material_events import grid_columns
-        grid=l.grid_flow(columns=grid_columns(context.region),even_columns=True,align=True)
+        grid=l.grid_flow(columns=grid_columns(context.region,len(_items)),even_columns=True,align=True)
         for key,name,description,icon,index in items(wm,context):
             col=grid.column(align=True);col.template_icon(icon_value=icon,scale=4)
             col.operator('cw.material_pick',text=name,depress=bool(wm.cw_material and wm.cw_material.name==key)).material=key

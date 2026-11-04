@@ -11,6 +11,8 @@ def raw_mesh(source,obj):
     return [tuple(matrix@v.co) for v in source.data.vertices],[tuple(p.vertices) for p in source.data.polygons],[tuple(e.vertices) for e in source.data.edges]
 
 def input_objects(obj,types=None):
+    if obj.cw.sources_list_ready and obj.cw_extra.kind in {'VOLUME_BUILDER','VOLUME_MESHER','SDF_SMOOTH','FOG_SMOOTH'}:
+        return list(dict.fromkeys(link.target for link in obj.cw.inputs if link.enabled and link.target and link.target!=obj and link.target.type=='MESH' and obj not in link.target.children_recursive))
     values=[link.target for link in obj.cw.inputs if link.target and link.target!=obj]
     if obj.cw_extra.source and obj.cw_extra.source not in values:values.insert(0,obj.cw_extra.source)
     values += [child for child in obj.children if child not in values]
@@ -58,7 +60,9 @@ def smooth_vectors(obj):
 
 def pieces(obj,voronoi=False):
     sources=input_objects(obj,{'MESH'});s=obj.cw_extra
-    if not sources:extras.set_status(obj,'请选择源网格 / Select a source mesh');return
+    if not sources:
+        if k in {'VOLUME_BUILDER','VOLUME_MESHER','SDF_SMOOTH','FOG_SMOOTH'} and obj.data.vertices:obj.data.clear_geometry()
+        extras.set_status(obj,'请选择源网格 / Select a source mesh');return
     result=[]
     if voronoi:
         source=sources[0];rng=random.Random(s.seed)
@@ -197,7 +201,9 @@ def build(obj,scene):
         for loop in obj.data.loops:uv.data[loop.index].uv=coords[loop.vertex_index]
         return
     sources=input_objects(obj,{'MESH'})
-    if not sources:extras.set_status(obj,'请选择源网格 / Select a source mesh');return
+    if not sources:
+        if k in {'VOLUME_BUILDER','VOLUME_MESHER','SDF_SMOOTH','FOG_SMOOTH'} and obj.data.vertices:obj.data.clear_geometry()
+        extras.set_status(obj,'请选择源网格 / Select a source mesh');return
     source=sources[0];vv,ff,ee=raw_mesh(source,obj)
     if k=='MOEXTRUDE':
         bm=bmesh.new();bm.from_mesh(source.data)

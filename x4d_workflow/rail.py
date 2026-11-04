@@ -3,13 +3,23 @@ import bpy,blf,gpu
 from gpu_extras.batch import batch_for_shader
 from bpy.props import StringProperty
 from .catalog import CATEGORIES,label
-from . import icons
+from . import icons,drag_tools
+_pointer={}
+_pressed={}
 _handle=None
 _running={}
 _generation=0
 _enabled=False
 _hover={}
 TOOLS=[('SELECT','选择','Select'),('MOVE','移动','Move'),('ROTATE','旋转','Rotate'),('SCALE','缩放','Scale'),('OBJECT','对象模式','Object Mode'),('POINT','点模式','Point Mode'),('EDGE','边模式','Edge Mode'),('FACE','面模式','Face Mode'),('AXIS','编辑轴心','Edit Axis')]
+
+def left_tools(context):
+    if context.mode!='EDIT_MESH':return TOOLS
+    from .modeling import COMMANDS
+    mode=context.tool_settings.mesh_select_mode
+    common=['POLY_BUILD','ADD_POINT','FILL_HOLE','BEVEL','EXTRUDE']
+    specific=['WELD','CONNECT','SET_POINT','SLIDE'] if mode[0] else ['BRIDGE','SUBDIVIDE','ROTATE_EDGE','SLIDE'] if mode[1] else ['INSET','BRIDGE','DISCONNECT','NORMAL_MOVE']
+    return TOOLS[:4]+[(key,*COMMANDS[key][:2]) for key in common+specific+['KNIFE','SMOOTH','SYMMETRIZE']]
 
 def rect(x,y,w,h,color):
     shader=gpu.shader.from_builtin('UNIFORM_COLOR');shader.bind();shader.uniform_float('color',color)
@@ -21,13 +31,22 @@ def sprite(name,x,y,size):
 def metrics(context):
     scale=context.preferences.system.ui_scale
     return max(28,int(30*scale)),max(25,int(28*scale))
+def right_edge(area,region):
+    sidebar=next((r for r in area.regions if r.type=='UI' and r.width>1),None)
+    if area.spaces.active.show_region_ui and sidebar:
+        return min(region.width,sidebar.x-region.x)
+    return region.width
+
 def draw():
     context=bpy.context
     if not _enabled or context.workspace.name!='X4D' or not context.region:return
+    from . import field_view,loop_preview
+    field_view.draw(context)
+    loop_preview.draw(context)
     width,height=metrics(context);r=context.region
     gpu.state.blend_set('ALPHA')
     hovered=_hover.get(context.window.as_pointer(),('',-1))
-    for side,entries,x in [('RIGHT',CATEGORIES,r.width-width),('LEFT',TOOLS,0)]:
+    for side,entries,x in [('RIGHT',CATEGORIES,right_edge(context.area,r)-width),('LEFT',left_tools(context),0)]:
         rect(x,0,width,r.height,(.145,.148,.155,1))
         for i,item in enumerate(entries):
             y=r.height-26-(i+1)*height
@@ -36,20 +55,36 @@ def draw():
                 selected=(item[0] in {'POINT','EDGE','FACE'} and context.mode=='EDIT_MESH' and context.tool_settings.mesh_select_mode[['POINT','EDGE','FACE'].index(item[0])]) or (item[0]=='AXIS' and context.scene.tool_settings.use_transform_data_origin)
                 tool=context.workspace.tools.from_space_view3d_mode(context.mode,create=False)
                 selected=selected or (tool and tool.idname=={'SELECT':'builtin.select_box','MOVE':'builtin.move','ROTATE':'builtin.rotate','SCALE':'builtin.scale'}.get(item[0],''))
-            if hovered==(side,i) or selected:rect(x+1,y,width-2,height-1,(.28,.32,.53,1) if selected else (.24,.25,.3,1))
-            name=icons.key(item[0]) if side=='RIGHT' else 'tool_'+item[0].lower()
-            size=min(width-6,height-4);sprite(name,x+(width-size)/2,y+(height-size)/2,size)
+            if side=='LEFT' and item[0]==drag_tools.armed.get(context.window.as_pointer()):selected=True
+            tile=min(width,height)-4
+            left=x+(width-tile)/2
+            bottom=y+(height-tile)/2
+            rect(left,bottom,tile,tile,(.10,.105,.12,1))
+            color=(.31,.36,.57,1) if selected else (.28,.29,.33,1) if hovered==(side,i) else (.20,.21,.23,1)
+            rect(left+1,bottom+1,tile-2,tile-2,color)
+            if side=='RIGHT':name=icons.key(item[0])
+            elif item in TOOLS:name='tool_'+item[0].lower()
+            else:name='mesh_'+item[0].lower()
+            size=tile-3
+            sprite(name,left+1.5,bottom+1.5,size)
     side,index=hovered
-    entries=CATEGORIES if side=='RIGHT' else TOOLS
+    entries=CATEGORIES if side=='RIGHT' else left_tools(context)
     if 0<=index<len(entries):
         item=entries[index];title=label(item[1],item[2]);blf.size(0,max(11,int(12*context.preferences.system.ui_scale)))
         tw,th=blf.dimensions(0,title);y=r.height-26-(index+1)*height
-        x=r.width-width-tw-22 if side=='RIGHT' else width+5
+        x=right_edge(context.area,r)-width-tw-22 if side=='RIGHT' else width+5
         rect(x,y,tw+16,height,(.075,.08,.09,.98));blf.color(0,.9,.9,.93,1);blf.position(0,x+8,y+(height-th)/2,0);blf.draw(0,title)
+    key=context.window.as_pointer()
+    tool=drag_tools.armed.get(key)
+    pointer=_pointer.get(key)
+    if tool and pointer and pointer[0]==context.area.as_pointer() and context.mode=='EDIT_MESH':
+        sprite('mesh_'+tool.lower(),pointer[1]+13,pointer[2]-25,23)
+    from .modeling import draw_sequence
+    draw_sequence(context)
     gpu.state.blend_set('NONE')
 
 class CW_OT_tool(bpy.types.Operator):
-    bl_idname='cw.tool';bl_label='工具 / Tool';bl_options={'UNDO'}
+    bl_idname='cw.tool';bl_label='Tool';bl_options={'UNDO'}
     tool:StringProperty()
     @classmethod
     def description(cls,context,properties):
@@ -70,6 +105,8 @@ class CW_OT_tool(bpy.types.Operator):
             if not area:return {'CANCELLED'}
             with context.temp_override(area=area,region=next(r for r in area.regions if r.type=='WINDOW')):return bpy.ops.cw.tool(tool=self.tool)
         tool=self.tool
+        from .quick_menu import remember
+        remember('cw.tool',tool)
         if tool in {'SELECT','MOVE','ROTATE','SCALE'}:
             bpy.ops.wm.tool_set_by_id(name={'SELECT':'builtin.select_box','MOVE':'builtin.move','ROTATE':'builtin.rotate','SCALE':'builtin.scale'}[tool])
         elif tool=='AXIS':context.scene.tool_settings.use_transform_data_origin=not context.scene.tool_settings.use_transform_data_origin
@@ -92,7 +129,22 @@ class CW_OT_rail(bpy.types.Operator):
         if not _enabled or self.generation!=_generation:
             if _running.get(self.token)==self.generation:_running.pop(self.token,None)
             return {'CANCELLED'}
-        if context.workspace.name!='X4D':return {'PASS_THROUGH'}
+        if context.workspace.name!='X4D':
+            drag_tools.armed.pop(self.token,None)
+            _pressed.pop(self.token,None)
+            return {'PASS_THROUGH'}
+        if event.type=='WINDOW_DEACTIVATE' or (event.value=='PRESS' and event.type in {'ESC','E','R','T'}):
+            _pressed.pop(self.token,None)
+            if drag_tools.armed.pop(self.token,None):
+                for view in context.screen.areas:
+                    if view.type=='VIEW_3D':view.tag_redraw()
+        if event.type=='LEFTMOUSE' and event.value=='RELEASE' and self.token in _pressed:
+            area,tool=_pressed.pop(self.token)
+            drag_tools.armed[self.token]=tool
+            from .quick_menu import remember
+            remember('cw.model',tool)
+            area.tag_redraw()
+            return {'RUNNING_MODAL'}
         area=next((a for a in context.screen.areas if a.type=='VIEW_3D' and a.x<=event.mouse_x<a.x+a.width and a.y<=event.mouse_y<a.y+a.height),None)
         if not area:
             if _hover.pop(self.token,None) is not None:
@@ -102,17 +154,53 @@ class CW_OT_rail(bpy.types.Operator):
         if not region:return {'PASS_THROUGH'}
         width,height=metrics(context);mx=event.mouse_x-region.x;my=event.mouse_y-region.y
         index=int((region.height-26-my)//height)
-        side='RIGHT' if region.width-width<=mx<region.width else 'LEFT' if 0<=mx<width else ''
-        entries=CATEGORIES if side=='RIGHT' else TOOLS
+        edge=right_edge(area,region)
+        if context.mode!='EDIT_MESH':drag_tools.armed.pop(self.token,None)
+        if event.type=='ESC' and self.token in drag_tools.armed:
+            drag_tools.armed.pop(self.token,None);area.tag_redraw()
+            return {'PASS_THROUGH'}
+        if mx>=edge or mx<0:return {'PASS_THROUGH'}
+        if self.token in drag_tools.armed and event.type=='MOUSEMOVE':
+            _pointer[self.token]=(area.as_pointer(),mx,my)
+            area.tag_redraw()
+        side='RIGHT' if edge-width<=mx<edge else 'LEFT' if 0<=mx<width else ''
+        entries=CATEGORIES if side=='RIGHT' else left_tools(context)
         hovered=(side,index) if side and 0<=index<len(entries) else ('',-1)
         if _hover.get(self.token)!=hovered:_hover[self.token]=hovered;area.tag_redraw()
+        if not side and event.type=='LEFTMOUSE' and event.value=='CLICK_DRAG' and self.token in drag_tools.armed:
+            with context.temp_override(area=area,region=region):
+                drag_tools.run(context,drag_tools.armed[self.token])
+            return {'RUNNING_MODAL'}
         if hovered[0] and event.type=='LEFTMOUSE' and event.value=='PRESS':
+            from . import loop_preview
+            preview=loop_preview.active.get(self.token)
+            if preview:preview.cancel(context)
+            command=entries[index][0]
+            if side=='LEFT' and command in {'EXTRUDE','INSET'}:
+                token=self.token
+                pending=(area,command)
+                _pressed[token]=pending
+                window=context.window
+                def hold():
+                    if _pressed.get(token) is not pending:return None
+                    _pressed.pop(token,None)
+                    if window.workspace.name=='X4D' and area in window.screen.areas:
+                        with bpy.context.temp_override(window=window,area=area,region=region):
+                            bpy.ops.wm.call_menu(name='CW_MT_extrude_drag' if command=='EXTRUDE' else 'CW_MT_inset_drag')
+                    return None
+                bpy.app.timers.register(hold,first_interval=.45)
+                return {'RUNNING_MODAL'}
+            drag_tools.armed.pop(self.token,None)
             try:
                 with context.temp_override(area=area,region=region):
                     if side=='RIGHT':bpy.ops.cw.palette('INVOKE_DEFAULT',category=CATEGORIES[index][0])
-                    else:bpy.ops.cw.tool(tool=TOOLS[index][0])
+                    elif entries[index] in TOOLS:bpy.ops.cw.tool(tool=entries[index][0])
+                    else:bpy.ops.cw.model('INVOKE_DEFAULT',command=entries[index][0])
             except Exception as exc:self.report({'WARNING'},str(exc))
             return {'RUNNING_MODAL'}
+        if event.type=='LEFTMOUSE' and event.value=='PRESS' and context.mode=='OBJECT':
+            with context.temp_override(area=area,region=region):
+                if 'RUNNING_MODAL' in bpy.ops.cw.field_resize('INVOKE_DEFAULT'):return {'RUNNING_MODAL'}
         return {'PASS_THROUGH'}
 
 def start(window):
@@ -126,8 +214,10 @@ def stop():
     _generation+=1;_running.clear()
     _enabled=False
     if _handle is not None:bpy.types.SpaceView3D.draw_handler_remove(_handle,'WINDOW');_handle=None
-    _hover.clear()
+    _hover.clear();_pointer.clear();_pressed.clear();drag_tools.armed.clear();drag_tools.choices.clear()
 classes=[CW_OT_tool,CW_OT_rail]
+
+
 
 
 

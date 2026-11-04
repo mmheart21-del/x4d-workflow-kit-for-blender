@@ -68,10 +68,10 @@ def transform(text):
     return result
 
 class CW_OT_import_svg(bpy.types.Operator,ImportHelper):
-    bl_idname='cw.import_svg';bl_label='矢量导入 SVG / Import SVG';bl_options={'REGISTER','UNDO'}
+    bl_idname='cw.import_svg';bl_label='Import SVG';bl_options={'REGISTER','UNDO'}
     filename_ext='.svg'
     filter_glob:StringProperty(default='*.svg',options={'HIDDEN'})
-    scale:FloatProperty(name='比例 / Scale',default=.01,min=.000001)
+    scale:FloatProperty(name='Scale',default=.01,min=.000001)
     def execute(self,context):
         try:root=ET.parse(self.filepath).getroot()
         except Exception as exc:self.report({'ERROR'},str(exc));return {'CANCELLED'}

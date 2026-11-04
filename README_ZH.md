@@ -1,10 +1,10 @@
 此插件正在开发中，因时间问题，还有很多功能未实现，我会继续优化。同时欢迎各位玩家踊跃参与，争取早日实现插件的全部功能
 
-# X4D Workflow Kit — 0.6.6
+# X4D Workflow Kit — 0.7.6
 
-![Version](https://img.shields.io/badge/version-v0.6.6-blue)
+![Version](https://img.shields.io/badge/version-v0.7.6-blue)
 
-[English](README.md) · [下载 0.6.6](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.6.6) · [报告问题](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues)
+[English](README.md) · [下载 0.7.6](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/releases/tag/v0.7.6) · [报告问题](https://github.com/mmheart21-del/x4d-workflow-kit-for-blender/issues)
 
 Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试版本为本机 Blender 5.2.3 LTS。运行时不需要 X4D、MCP 或网络。未来版本不视为已验证。
 
@@ -31,7 +31,15 @@ Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试�
 
 ## 安装与恢复
 
-在 Blender 的偏好设置 → 获取扩展 → 右上菜单 → 从磁盘安装，选择 `dist/x4d_workflow-0.6.6.zip`。更新前停用旧版，再安装新版并启用。请确认扩展版本显示 0.6.6。
+### 远程安装
+
+1. 打开 [X4D 自助领取页面](https://plugins.laoma3d.xyz/p/2)，点击「免费获取」，领取仓库 URL 和访问令牌。
+2. 在 Blender 打开「编辑 → 偏好设置 → 获取扩展 → 仓库」，添加远程仓库，粘贴仓库 URL 并填写访问令牌。
+3. 刷新仓库，找到「X4D Workflow Kit」并安装。后续可通过同一仓库检查和下载更新。
+
+### 从磁盘安装
+
+在 Blender 的偏好设置 → 获取扩展 → 右上菜单 → 从磁盘安装，选择 `x4d_workflow-0.7.6.zip`。更新前停用旧版，再安装新版并启用。请确认扩展版本显示 0.7.6。
 
 首次启用创建独立 X4D 工作区并切换，布局会分几次刷新完成。识别到未保存、未编辑的 Blender 默认立方体/摄像机/灯光场景时，进入新的空场景，原场景保留。已编辑场景和已保存作品不清空。不自动保存当前文件、不覆盖启动文件。已有文件重开尊重保存布局。
 
@@ -57,7 +65,7 @@ Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试�
 
 声音工具使用 PCM WAV；浮雕和背景使用图片；IES 灯使用 IES 文件；矢量导入使用 SVG。Python 对象附带可运行示例，修改脚本后需点击“运行”；重开文件不会自动执行自定义脚本，已有生成网格保留。
 
-快捷键包括 E/R/T、H/S、C、Alt+G、Alt 鼠标、1/2/3＋左键拖动、F1–F5、M,T / M,S / U,A / U,I，仅在 X4D 工作区的视口接管。坐标位置使用 X4D X,Y,Z = Blender X,Z,-Y，缩放交换 Y/Z；旋转仍为分量近似，不是完整 HPB 转换。
+快捷键包括 E/R/T、H/S、C、Alt+G、Alt 鼠标、1/2/3＋左键拖动、F1–F5、M,T / M,S / U,A / U,I，仅在 X4D 工作区的视口接管。具体命令及差异见[快捷键速查](docs/SHORTCUTS.md)。坐标位置使用 X4D X,Y,Z = Blender X,Z,-Y，缩放交换 Y/Z；旋转仍为分量近似，不是完整 HPB 转换。
 
 ## 功能范围与差异
 
@@ -88,6 +96,8 @@ Windows Blender 扩展。最低兼容目标为 Blender 4.5；实际运行测试�
 Blender 5.2.3：108 个非文件选择创建菜单的执行检查；SVG/图片/WAV 单独检查；24 项几何检查、23 项域/效果器检查、8 项扩展工作流检查；注册失败回滚、重复启用、生成器/变形器回归；1,000 个实例及保存重开，10,000 实例生成耗时约 0.24 秒（本机测试场景，非交互帧率）。
 
 测试脚本在 `tests/`，结果在 `artifacts/`。GUI 截图由实际 Blender 窗口通过 API 生成；不等于逐个按钮的人工鼠标验收。4.5 尚未运行实测；1080p 以外分辨率及 Windows 125%/150% 缩放需后续完整验收。
+
+![X4D V quick menu](docs/images/v-quick-menu.png)
 
 ![MoGraph 示例](docs/images/mograph.png)
 

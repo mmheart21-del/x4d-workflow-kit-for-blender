@@ -42,7 +42,7 @@ def install():
         if finish not in handlers:handlers.append(finish)
 
 class CW_OT_render(bpy.types.Operator):
-    bl_idname='cw.render';bl_label='渲染 / Render'
+    bl_idname='cw.render';bl_label='Render'
     mode:EnumProperty(items=[('REGION','区域渲染',''),('RENDER','渲染',''),('SETTINGS','渲染设置','')])
     @classmethod
     def description(cls,context,properties):
@@ -88,8 +88,13 @@ class CW_OT_render(bpy.types.Operator):
         return {'RUNNING_MODAL'}
     def execute(self,context):
         if self.mode=='SETTINGS':
-            area=next((a for a in context.screen.areas if a.type=='PROPERTIES'),None)
-            if area:area.spaces.active.context='RENDER';area.tag_redraw();return {'FINISHED'}
+            from .material_dock import is_dock
+            area=next((a for a in context.screen.areas if a.type=='PROPERTIES' and not is_dock(a)),None)
+            if area:
+                space=area.spaces.active
+                if space.use_pin_id:
+                    space.use_pin_id=False;space.pin_id=None;space.context='TOOL'
+                space.context='RENDER';area.tag_redraw();return {'FINISHED'}
             self.report({'WARNING'},label('当前窗口没有属性编辑器','No Properties editor in this window'));return {'CANCELLED'}
         area=context.area if context.area and context.area.type=='VIEW_3D' else next((a for a in context.screen.areas if a.type=='VIEW_3D'),None)
         if not area:return {'CANCELLED'}
@@ -103,7 +108,7 @@ class CW_OT_render(bpy.types.Operator):
         except Exception as exc:
             finish(context.scene);self.report({'ERROR'},str(exc));return {'CANCELLED'}
 class CW_PT_render_output(bpy.types.Panel):
-    bl_label='渲染设置 / Render Settings'
+    bl_label='Render Settings'
     bl_space_type='PROPERTIES';bl_region_type='WINDOW';bl_context='render'
     bl_order=-100
     @classmethod

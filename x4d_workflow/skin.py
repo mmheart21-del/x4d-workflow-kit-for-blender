@@ -24,12 +24,28 @@ def header(self,context):
         return
     l=self.layout;row=l.row(align=True)
     row.menu('VIEW3D_MT_object' if context.mode=='OBJECT' else 'VIEW3D_MT_edit_mesh' if context.mode=='EDIT_MESH' else 'VIEW3D_MT_view',text=label('编辑','Edit'))
+    if context.mode=='EDIT_MESH':row.menu('CW_MT_modeling',text=label('建模','Modeling'))
     row.menu('CW_MT_camera',text=label('摄像机','Camera'))
     row.menu('CW_MT_display',text=label('显示','Display'))
     row.menu('CW_MT_filter',text=label('过滤','Filter'))
     row.menu('CW_MT_create',text=label('创建','Create'))
+    row.separator()
+    tool=context.workspace.tools.from_space_view3d_mode(context.mode,create=False)
+    transform={'builtin.rotate':'transform.rotate','builtin.scale':'transform.resize'}.get(tool.idname if tool else '', 'transform.translate')
+    axes=row.row(align=True)
+    axes.operator_context='INVOKE_REGION_WIN'
+    for axis,index in [('X',0),('Y',2),('Z',1)]:
+        action=axes.operator(transform,text=axis)
+        action.constraint_axis=tuple(i==index for i in range(3))
+    row.prop(context.scene.transform_orientation_slots[0],'type',text='')
     row.separator_spacer()
     for key in ['OBJECT','POINT','EDGE','FACE','MOVE','ROTATE','SCALE','AXIS']:row.operator('cw.tool',text='',icon_value=icons.icon_id('tool_'+key.lower())).tool=key
+    settings=context.scene.tool_settings
+    row.prop(settings,'transform_pivot_point',text='')
+    row.prop(settings,'use_snap',text='',icon='SNAP_ON' if settings.use_snap else 'SNAP_OFF')
+    row.popover(panel='VIEW3D_PT_snapping',text='',icon='DOWNARROW_HLT')
+    row.prop(context.space_data.overlay,'show_overlays',text='',icon='OVERLAY')
+    row.prop(context.space_data.shading,'show_xray',text='',icon='XRAY')
     row.separator_spacer()
     for mode in ['REGION','RENDER','SETTINGS']:
         row.operator('cw.render',text='',icon_value=icons.icon_id('render_'+mode.lower())).mode=mode
@@ -65,6 +81,7 @@ class CW_MT_tools(bpy.types.Menu):
     def draw(self,context):
         for key,cn,en in [('SELECT','选择','Select'),('MOVE','移动','Move'),('ROTATE','旋转','Rotate'),('SCALE','缩放','Scale'),('AXIS','轴心','Axis')]:self.layout.operator('cw.tool',text=label(cn,en),icon_value=icons.icon_id('tool_'+key.lower())).tool=key
         self.layout.separator()
+        self.layout.operator('cw.shortcut_help',text=label('快捷键速查','Shortcut Reference'),icon='HELP')
         self.layout.operator('cw.new_scene',text=label('新建空场景','New Empty Scene'),icon='FILE_NEW')
         self.layout.operator('cw.restore',text=label('恢复 Blender','Restore Blender'),icon='LOOP_BACK')
 class CW_MT_mograph(bpy.types.Menu):

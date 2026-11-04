@@ -1,31 +1,22 @@
-# X4D v0.6.6
+# X4D v0.7.6
 
-This extension is under development. Many features remain unfinished due to time constraints. I will keep improving it, and contributions are welcome to help complete its functionality.
+This release brings together the changes since v0.6.6.
 
-## What’s new in 0.6.6
+- **Tags and source lists:** Add, rename, reorder and remove object tags. The tag menu includes materials, smooth shading, point/edge/face sets, vertex weights and target constraints. Cloner and volume source lists support adding selected objects, toggling individual inputs and reordering them.
+- **Cloning and fields:** Cloners accept multiple sources and cycle through them in list order. Sources are parented and hidden while in use, with their previous state restored on removal. Fields have viewport handles, including inner and outer controls for box, sphere and linear fields.
+- **Modeling:** Added contextual point, edge and face toolbars, M/U/K command popups and the eight-direction V menu. U → L and U → B preview loops and rings and stay active after confirmation. Left toolbar extrusion and inset start on drag, confirm on release and offer mode choices on long press.
+- **Materials and localization:** Selecting an object outlines its material tiles independently of the active material. Materials appear newest first, and common interface labels and new data names follow the Blender language setting.
+- **Viewport:** Improved toolbar icon contrast and kept the creation rail clear of the N sidebar.
 
-- Embedded material browser with Blender-native material thumbnails and clickable objects using the selected material. No custom preview renderer or changes to your CPU/GPU settings; native thumbnails are not a pixel-for-pixel copy of the Properties preview widget.
-- Click a material to show its native Material Properties. Double-click to open a reusable shader node window; selecting another material updates that window.
-- Press Delete while the pointer is inside the material browser to remove the selected material, including its object assignments. Ctrl+Z restores it.
-- Selecting an input object of a Boolean or Volume generator in the Outliner shows an editable wireframe. Deselect it to hide the wireframe; moving it updates the generated result.
-- Fixed Boolean input evaluation and Volume Builder updates losing edits to input geometry.
-- Fixed the Region Render callback cleanup error when completing or cancelling a region selection.
-- Clicking an object, including the already active object, now returns the attribute manager from Material Properties to object controls.
+## 中文更新
 
-Tested on Windows with Blender **5.2.3 LTS**. Blender **4.5** remains the minimum compatibility target, not an additional tested version.
+- 对象标签、克隆源与体积源采用列表管理，支持添加、排序和移除。标签可重命名，源对象可逐项启停。
+- 克隆支持多源轮换、自动收纳与隐藏原件。域新增视口手柄，盒形、球形和线性域可调整内外范围。
+- 新增点、边、面工具栏、M/U/K 连续快捷键弹窗和 V 八方向菜单。循环与环状预览可连续选择。左栏挤压、内挤压改为拖动操作，长按按钮可选方式。
+- 材质面板支持物体关联高亮与新旧排序。改进中英文命名、工具栏图标和 N 面板共存。
 
-## Install / 安装
+## Install
 
-Download **x4d_workflow-0.6.6.zip** and install it using Blender Preferences → Get Extensions → Install from Disk. Disable the previous version before updating, then enable the new version. Do not install the source archive as an extension.
+Download **x4d_workflow-0.7.6.zip** for Install from Disk, or follow the remote repository instructions on the project homepage.
 
-下载 **x4d_workflow-0.6.6.zip**，在 Blender 偏好设置 → 获取扩展 → 从磁盘安装。更新前先停用旧版，安装后启用新版。源码包不是插件安装包。
-
-## 中文更新说明
-
-- 新增内嵌材质浏览器、原生缩略图与材质使用对象列表。
-- 单击显示材质属性；双击打开可复用并随所选材质同步的节点窗口。
-- 材质面板内按 Del 删除所选材质，Ctrl+Z 恢复。
-- 布尔、体积输入对象选中时显示可编辑线框，取消选择后隐藏。
-- 修复布尔求值、体积输入编辑更新、区域渲染回调清理报错，以及点击对象后属性仍停留在材质页的问题。
-
-Minimum compatibility target: Blender 4.5. Actual runtime tests: Windows / Blender 5.2.3 LTS. Other versions are not claimed as tested.
+Minimum compatibility target: Blender 4.5. Runtime tested on Windows with Blender 5.2.3 LTS.

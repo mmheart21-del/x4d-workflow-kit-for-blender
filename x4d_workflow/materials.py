@@ -2,7 +2,7 @@ import bpy
 from bpy.props import StringProperty
 from .catalog import label
 class CW_OT_materials(bpy.types.Operator):
-    bl_idname='cw.materials';bl_label='Materials / 材质管理'
+    bl_idname='cw.materials';bl_label='Materials'
     bl_description='Browse material previews and inspect the objects using each material'
     def invoke(self,context,event):return self.execute(context)
     def execute(self,context):
@@ -11,7 +11,7 @@ class CW_OT_materials(bpy.types.Operator):
 class CW_OT_material_new(bpy.types.Operator):
     bl_idname='cw.material_new';bl_label='New Material';bl_options={'REGISTER','UNDO'}
     def execute(self,context):
-        mat=bpy.data.materials.new('Material');mat.use_nodes=True
+        mat=bpy.data.materials.new(bpy.app.translations.pgettext_data('Material'));mat.use_nodes=True
         from . import material_previews
         material_previews.request()
         context.window_manager.cw_material=mat
@@ -42,7 +42,7 @@ class CW_OT_material_user(bpy.types.Operator):
         obj.hide_set(False);obj.select_set(True);context.view_layer.objects.active=obj
         return {'FINISHED'}
 class CW_PT_object_materials(bpy.types.Panel):
-    bl_label='Object Materials / 对象材质';bl_space_type='OUTLINER';bl_region_type='HEADER'
+    bl_label='Object Materials';bl_space_type='OUTLINER';bl_region_type='HEADER'
     def draw(self,context):
         for obj in context.scene.objects:
             if not obj.material_slots:continue
@@ -57,7 +57,7 @@ def outliner_header(self,context):
     if context.workspace and context.workspace.name=='X4D':self.layout.popover(panel='CW_PT_object_materials',text='',icon='MATERIAL')
 
 class CW_OT_material_delete(bpy.types.Operator):
-    bl_idname='cw.material_delete';bl_label='Delete Material / 删除材质';bl_options={'REGISTER'}
+    bl_idname='cw.material_delete';bl_label='Delete Material';bl_options={'REGISTER'}
     material:StringProperty()
     def execute(self,context):
         mat=bpy.data.materials.get(self.material) if self.material else context.window_manager.cw_material

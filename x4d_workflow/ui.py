@@ -1,6 +1,7 @@
 import bpy
+from .catalog import label as ui_label
 
-PARAM_LABELS={'source':('源对象','Source'),'mode':('模式','Mode'),'count':('数量','Count'),'spacing':('间距','Spacing'),'radius':('半径','Radius'),'surface':('分布表面','Surface'),'seed':('随机种子','Seed'),'effector':('效果器类型','Effector'),'strength':('强度','Strength'),'move':('位移','Position'),'rotate':('旋转','Rotation'),'scale':('缩放变化','Scale Change'),'field_type':('域类型','Field Type'),'dimensions':('维度','Dimensions'),'resolution_u':('细分','Resolution'),'extrude':('挤压深度','Extrude'),'bevel_depth':('倒角半径','Bevel'),'body':('文字','Text'),'size':('大小','Size'),'type':('类型','Type'),'color':('颜色','Color'),'energy':('强度','Power')}
+PARAM_LABELS={'inner_range':('内部范围','Inner Range'),'source':('源对象','Source'),'mode':('模式','Mode'),'count':('数量','Count'),'spacing':('间距','Spacing'),'radius':('半径','Radius'),'surface':('分布表面','Surface'),'seed':('随机种子','Seed'),'effector':('效果器类型','Effector'),'strength':('强度','Strength'),'move':('位移','Position'),'rotate':('旋转','Rotation'),'scale':('缩放变化','Scale Change'),'field_type':('域类型','Field Type'),'dimensions':('维度','Dimensions'),'resolution_u':('细分','Resolution'),'extrude':('挤压深度','Extrude'),'bevel_depth':('倒角半径','Bevel'),'body':('文字','Text'),'size':('大小','Size'),'type':('类型','Type'),'color':('颜色','Color'),'energy':('强度','Power')}
 def parameter(layout,data,name):
     from .catalog import label
     cn,en=PARAM_LABELS.get(name,(name,name))
@@ -18,31 +19,31 @@ def action(layout,key):
     op=layout.operator('cw.action',text=text(key));op.action=key
 
 class CW_PT_create(bpy.types.Panel):
-    bl_label='X4D · Create / 创建';bl_idname='CW_PT_create';bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='X4D'
+    bl_label=ui_label('创建','X4D · Create');bl_idname='CW_PT_create';bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='X4D'
     def draw(self,context):
         l=self.layout
         row=l.row();row.operator('cw.workspace',text='X4D');row.operator('cw.restore',text='Blender')
-        l.label(text='Objects / 对象',icon='OUTLINER_OB_MESH')
+        l.label(text=ui_label('对象','Objects'),icon='OUTLINER_OB_MESH')
         grid=l.grid_flow(columns=3,align=True)
-        for op,label in [('cube','立方体 / Cube'),('uv_sphere','球 / Sphere'),('cylinder','圆柱 / Cylinder'),('cone','圆锥 / Cone'),('plane','平面 / Plane'),('torus','圆环 / Torus')]:grid.operator('cw.primitive',text=label).kind={'cube':'CUBE','uv_sphere':'SPHERE','cylinder':'CYLINDER','cone':'CONE','plane':'PLANE','torus':'TORUS'}[op]
+        for op,label in [('cube',ui_label('立方体','Cube')),('uv_sphere',ui_label('球','Sphere')),('cylinder',ui_label('圆柱','Cylinder')),('cone',ui_label('圆锥','Cone')),('plane',ui_label('平面','Plane')),('torus',ui_label('圆环','Torus'))]:grid.operator('cw.primitive',text=label).kind={'cube':'CUBE','uv_sphere':'SPHERE','cylinder':'CYLINDER','cone':'CONE','plane':'PLANE','torus':'TORUS'}[op]
         row=l.row(align=True)
         for kind in ['CLONER','EFFECTOR','FIELD']:row.operator('cw.create',text=text(kind)).kind=kind
         if context.object:
-            for title,items in [('Generators / 生成器',['SUBSURF','BOOLEAN','EXTRUDE','LATHE','SWEEP']),('Deformers / 变形器',['BEND','TWIST','TAPER']),('Objects & Tags / 对象与标签',['GROUP','EDITABLE','STATE','MATERIAL','SELECTION','SMOOTH','TARGET'])]:
+            for title,items in [(ui_label('生成器','Generators'),['SUBSURF','BOOLEAN','EXTRUDE','LATHE','SWEEP']),(ui_label('变形器','Deformers'),['BEND','TWIST','TAPER']),(ui_label('对象与标签','Objects & Tags'),['GROUP','EDITABLE','STATE','MATERIAL','SELECTION','SMOOTH','TARGET'])]:
                 box=l.box();box.label(text=title);grid=box.grid_flow(columns=2,align=True)
                 for key in items:action(grid,key)
 
 class CW_PT_attributes(bpy.types.Panel):
-    bl_label='Attributes / 属性';bl_idname='CW_PT_attributes';bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='X4D'
+    bl_label=ui_label('属性','Attributes');bl_idname='CW_PT_attributes';bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='X4D'
     @classmethod
     def poll(cls,context):return context.object is not None
     def draw(self,context):
         from .catalog import label
         l=self.layout;obj=context.object;s=obj.cw
-        l.prop(obj,'name',text='Name / 名称')
-        l.prop(obj,'cw_position',text='Position / 位置')
-        l.prop(obj,'cw_rotation',text='Rotation / 旋转')
-        l.prop(obj,'cw_scale',text='Scale / 缩放')
+        l.prop(obj,'name',text=ui_label('名称','Name'))
+        l.prop(obj,'cw_position',text=ui_label('位置','Position'))
+        l.prop(obj,'cw_rotation',text=ui_label('旋转','Rotation'))
+        l.prop(obj,'cw_scale',text=ui_label('缩放','Scale'))
         if s.kind=='EXTRA':
             from .extra_ui import draw
             draw(l,obj,self.links)
@@ -57,35 +58,36 @@ class CW_PT_attributes(bpy.types.Panel):
                 l.prop(obj.data,'extrude',text=label('挤压','Extrude'))
                 l.prop(obj.data,'bevel_depth',text=label('半径','Radius'))
         elif obj.cw_primitive.kind:
-            l.prop(obj,'cw_size',text='尺寸 / Size');l.prop(obj.cw_primitive,'subdivisions' if obj.cw_primitive.kind=='CUBE' else 'segments',text='分段 / Segments')
+            l.prop(obj,'cw_size',text=ui_label('尺寸','Size'));l.prop(obj.cw_primitive,'subdivisions' if obj.cw_primitive.kind=='CUBE' else 'segments',text=ui_label('分段','Segments'))
             if obj.cw_primitive.kind=='TORUS':l.prop(obj.cw_primitive,'tube')
         if s.kind=='CLONER':
-            for prop in ['source','mode','count','spacing','radius'] :parameter(l,s,prop)
+            for prop in ['mode','count','spacing','radius'] :parameter(l,s,prop)
             if s.mode=='SURFACE':parameter(l,s,'surface');parameter(l,s,'seed')
-            self.links(l,s,'effectors')
+            from .object_lists import draw_sources
+            draw_sources(l,obj);self.links(l,s,'effectors')
         elif s.kind=='EFFECTOR':
             for prop in ['effector','strength','move','rotate','scale','seed']:parameter(l,s,prop)
             self.links(l,s,'fields')
         elif s.kind=='DEFORMER':
-            l.prop(s,'deform_target',text='目标对象 / Target')
-            l.prop(s,'deform_axis',text='轴向 / Axis')
-            l.prop(s,'deform_factor' if s.deform_type=='TAPER' else 'deform_angle',text='强度 / Strength' if s.deform_type=='TAPER' else '角度 / Angle')
+            l.prop(s,'deform_target',text=ui_label('目标对象','Target'))
+            l.prop(s,'deform_axis',text=ui_label('轴向','Axis'))
+            l.prop(s,'deform_factor' if s.deform_type=='TAPER' else 'deform_angle',text=ui_label('强度','Strength') if s.deform_type=='TAPER' else ui_label('角度','Angle'))
         elif s.kind=='FIELD':
-            for prop in ['field_type','radius','seed']:parameter(l,s,prop)
+            for prop in ['field_type','radius','inner_range','seed']:parameter(l,s,prop)
         if s.kind in {'EFFECTOR','FIELD'}:
             from .extra_ui import draw
             draw(l,obj,self.links)
         if s.kind not in {'GENERATOR','EXTRA'} and obj.modifiers:draw_modifiers(l,obj)
         if s.status:l.label(text=s.status,icon='ERROR')
     def links(self,l,s,name):
-        box=l.box();box.label(text='Fields / 域' if name=='fields' else '输入对象 / Inputs' if name=='inputs' else 'Effectors / 效果器')
+        box=l.box();box.label(text=ui_label('域','Fields') if name=='fields' else ui_label('输入对象','Inputs') if name=='inputs' else ui_label('其他克隆源','Additional Sources') if name=='sources' else ui_label('效果器','Effectors'))
         for i,item in enumerate(getattr(s,name)):
             row=box.row(align=True);row.prop(item,'target',text='')
             for a,icon in [('UP','TRIA_UP'),('DOWN','TRIA_DOWN'),('REMOVE','X')]:
                 op=row.operator('cw.list_edit',text='',icon=icon);op.action=a;op.collection=name;op.index=i
             if name=='fields':
                 box.prop(item,'mode');box.prop(item,'invert');row=box.row();row.prop(item,'low');row.prop(item,'high')
-        op=box.operator('cw.list_edit',text='Add / 添加',icon='ADD');op.collection=name
+        op=box.operator('cw.list_edit',text=ui_label('添加','Add'),icon='ADD');op.collection=name
 
 classes=[CW_PT_create,CW_PT_attributes]
 
@@ -105,7 +107,7 @@ def draw_modifiers(layout,obj):
 
 class CWManagerDrawing:
     links=CW_PT_attributes.links
-    bl_label='X4D Attributes / 属性管理器'
+    bl_label=ui_label('属性管理器','X4D Attributes')
     bl_idname='CW_PT_manager'
     bl_options={'HIDE_HEADER'}
     bl_order=-100
@@ -124,11 +126,8 @@ class CWManagerDrawing:
         elif tab=='BASIC':
             l.prop(obj,'parent',text=label('父级','Parent'));l.prop(obj,'hide_viewport',text=label('编辑器隐藏','Hide in Viewport'));l.prop(obj,'hide_render',text=label('渲染隐藏','Hide in Render'));l.prop(obj,'color',text=label('显示颜色','Display Color'))
         elif tab=='TAGS':
-            for slot in obj.material_slots:l.prop(slot,'material',text='')
-            for constraint in obj.constraints:
-                box=l.box();box.prop(constraint,'name',text='');box.prop(constraint,'influence')
-                if hasattr(constraint,'target'):box.prop(constraint,'target')
-            for key in ['MATERIAL','SELECTION','SMOOTH','TARGET']:action(l,key)
+            from .object_lists import draw_tags
+            draw_tags(l,obj)
         else:
             self.draw_settings(l,obj)
     def draw_settings(self,l,obj):
@@ -148,21 +147,22 @@ class CWManagerDrawing:
                 l.prop(obj.data,'extrude',text=label('挤压','Extrude'))
                 l.prop(obj.data,'bevel_depth',text=label('半径','Radius'))
         elif obj.cw_primitive.kind:
-            l.prop(obj,'cw_size',text='尺寸 / Size');l.prop(obj.cw_primitive,'subdivisions' if obj.cw_primitive.kind=='CUBE' else 'segments',text='分段 / Segments')
+            l.prop(obj,'cw_size',text=ui_label('尺寸','Size'));l.prop(obj.cw_primitive,'subdivisions' if obj.cw_primitive.kind=='CUBE' else 'segments',text=ui_label('分段','Segments'))
             if obj.cw_primitive.kind=='TORUS':l.prop(obj.cw_primitive,'tube')
         elif s.kind=='CLONER':
-            for p in ['source','mode','count','spacing','radius']:parameter(l,s,p)
+            for p in ['mode','count','spacing','radius']:parameter(l,s,p)
             if s.mode=='SURFACE':parameter(l,s,'surface');parameter(l,s,'seed')
-            self.links(l,s,'effectors')
+            from .object_lists import draw_sources
+            draw_sources(l,obj);self.links(l,s,'effectors')
         elif s.kind=='EFFECTOR':
             for p in ['effector','strength','move','rotate','scale','seed']:parameter(l,s,p)
             self.links(l,s,'fields')
         elif s.kind=='DEFORMER':
-            l.prop(s,'deform_target',text='目标对象 / Target')
-            l.prop(s,'deform_axis',text='轴向 / Axis')
-            l.prop(s,'deform_factor' if s.deform_type=='TAPER' else 'deform_angle',text='强度 / Strength' if s.deform_type=='TAPER' else '角度 / Angle')
+            l.prop(s,'deform_target',text=ui_label('目标对象','Target'))
+            l.prop(s,'deform_axis',text=ui_label('轴向','Axis'))
+            l.prop(s,'deform_factor' if s.deform_type=='TAPER' else 'deform_angle',text=ui_label('强度','Strength') if s.deform_type=='TAPER' else ui_label('角度','Angle'))
         elif s.kind=='FIELD':
-            for p in ['field_type','radius','seed']:parameter(l,s,p)
+            for p in ['field_type','radius','inner_range','seed']:parameter(l,s,p)
         elif obj.type=='CURVE':
             for p in ['dimensions','resolution_u','extrude','bevel_depth']:parameter(l,obj.data,p)
         elif obj.type=='FONT':
@@ -191,6 +191,7 @@ _ATTRIBUTE_ZH=[('OBJECT','对象','对象参数'),('COORD','坐标','坐标参�
 _ATTRIBUTE_EN=[('OBJECT','Object','Object parameters'),('COORD','Coord.','Coordinates'),('BASIC','Basic','Basic properties'),('TAGS','Tags','Materials and tags')]
 def attribute_tabs(self,context):
     return _ATTRIBUTE_ZH if bpy.context.preferences.view.language.startswith('zh') else _ATTRIBUTE_EN
+
 
 
 

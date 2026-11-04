@@ -55,7 +55,7 @@ def run_generator(obj,scene):
     extras.mesh_write(obj,[tuple(v) for v in vertices],[tuple(face) for face in faces])
 
 class CW_OT_run_python(bpy.types.Operator):
-    bl_idname='cw.run_python';bl_label='运行 Python / Run Python';bl_options={'REGISTER','UNDO'}
+    bl_idname='cw.run_python';bl_label='Run Python';bl_options={'REGISTER','UNDO'}
     def execute(self,context):
         obj=context.object
         if obj is None:return {'CANCELLED'}
@@ -67,7 +67,7 @@ class CW_OT_run_python(bpy.types.Operator):
         except Exception as exc:obj.cw.status=str(exc);self.report({'ERROR'},str(exc));return {'CANCELLED'}
 
 class CW_OT_edit_python(bpy.types.Operator):
-    bl_idname='cw.edit_python';bl_label='编辑脚本 / Edit Script'
+    bl_idname='cw.edit_python';bl_label='Edit Script'
     def execute(self,context):
         obj=context.object
         if obj is None:return {'CANCELLED'}

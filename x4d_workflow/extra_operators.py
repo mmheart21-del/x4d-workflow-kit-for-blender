@@ -7,7 +7,7 @@ CONTROLLERS={'COLLISION','FORMULA_DEFORM','MELT'}
 NAMES={'CAPSULE':'胶囊','OIL_TANK':'油罐','TUBE':'管道','FIGURE':'人形对象','LANDSCAPE':'地形','RELIEF':'浮雕','BACKGROUND':'背景','FORMULA_SPLINE':'公式样条','PROFILE':'轮廓','LOFT':'放样','SPLINE_MASK':'样条布尔','LOD':'LOD','PYTHON_GENERATOR':'Python 生成器','VOLUME_BUILDER':'体积生成','VOLUME_MESHER':'体积网格','SDF_SMOOTH':'SDF 平滑','FOG_SMOOTH':'雾平滑','VECTOR_SMOOTH':'矢量平滑','MATRIX':'矩阵','SCATTER':'散布','FRACTURE':'分裂','VORONOI':'Voronoi 破碎','TRACER':'追踪对象','MOSPLINE':'运动样条','MOEXTRUDE':'运动挤压','COLLISION':'碰撞','FORMULA_DEFORM':'公式变形','MELT':'融解','IES':'IES 灯'}
 
 class CW_OT_extra(bpy.types.Operator):
-    bl_idname='cw.extra';bl_label='创建 / Create';bl_options={'REGISTER','UNDO'}
+    bl_idname='cw.extra';bl_label='Create';bl_options={'REGISTER','UNDO'}
     kind:StringProperty()
     def execute(self,context):
         kind=self.kind
@@ -63,7 +63,7 @@ class CW_OT_extra(bpy.types.Operator):
 classes=[CW_OT_extra]
 
 class CW_OT_new_texture(bpy.types.Operator):
-    bl_idname='cw.new_texture';bl_label='新建噪波纹理 / New Noise Texture';bl_options={'UNDO'}
+    bl_idname='cw.new_texture';bl_label='New Noise Texture';bl_options={'UNDO'}
     def execute(self,context):
         if not context.object:return {'CANCELLED'}
         texture=bpy.data.textures.new('CW Noise',type='CLOUDS');context.object.cw_extra.texture=texture
@@ -72,7 +72,7 @@ classes.append(CW_OT_new_texture)
 
 from bpy_extras.io_utils import ImportHelper
 class CW_OT_load_asset(bpy.types.Operator,ImportHelper):
-    bl_idname='cw.load_asset';bl_label='载入资源 / Load Asset';bl_options={'UNDO'}
+    bl_idname='cw.load_asset';bl_label='Load Asset';bl_options={'UNDO'}
     filename_ext=''
     filter_glob:StringProperty(default='*.png;*.jpg;*.jpeg;*.tif;*.exr;*.ies;*.wav',options={'HIDDEN'})
     object_name:StringProperty()

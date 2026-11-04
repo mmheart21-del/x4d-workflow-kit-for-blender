@@ -41,7 +41,7 @@ def sync(scene,*args):
     finally:_busy=False
 
 class CW_OT_deformer(bpy.types.Operator):
-    bl_idname='cw.deformer';bl_label='创建变形器 / Create Deformer';bl_options={'REGISTER','UNDO'}
+    bl_idname='cw.deformer';bl_label='Create Deformer';bl_options={'REGISTER','UNDO'}
     kind:StringProperty(default='BEND')
     def execute(self,context):
         if self.kind not in {'BEND','TWIST','TAPER'}:return {'CANCELLED'}

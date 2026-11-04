@@ -27,10 +27,8 @@ class CW_OT_catalog(bpy.types.Operator):
         if family=='ACTION' and value in {'BEND','TWIST','TAPER'}:return bpy.ops.cw.deformer(kind=value)
         if family=='ACTION':return bpy.ops.cw.action(action=value)
         if family in {'CREATE','FIELD','EFFECTOR'}:
-            result=bpy.ops.cw.create(kind=value if family=='CREATE' else family)
-            if family=='FIELD':context.object.cw.field_type=value
-            elif family=='EFFECTOR':
-                context.object.cw.effector=value
+            result=bpy.ops.cw.create(kind=value if family=='CREATE' else family,subtype=value if family!='CREATE' else '')
+            if family=='EFFECTOR' and 'FINISHED' in result:
                 if value=='PYTHON':
                     from .procedural_scripts import prepare
                     prepare(context.object)

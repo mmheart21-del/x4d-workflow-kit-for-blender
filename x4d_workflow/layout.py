@@ -17,7 +17,6 @@ def join(window,source,target):
 def configure_view(area):
     space=area.spaces.active
     space.show_gizmo_navigate=False
-    space.show_region_ui=False
     space.show_region_toolbar=False
     space.show_region_tool_header=False
     space.overlay.show_floor=True
